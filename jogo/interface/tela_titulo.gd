@@ -6,6 +6,7 @@ const SALA_FUNDO := "res://dados/salas/catacumbas/titulo.txt"
 var _menu: VBoxContainer
 var _config: PainelConfig
 var _creditos: PanelContainer
+var _voltar_creditos: BotaoMenu
 var _primeiro: BotaoMenu
 
 
@@ -93,7 +94,10 @@ func _montar_interface() -> void:
 	_botao("titulo.creditos", func() -> void:
 		_menu.visible = false
 		_creditos.visible = true
-		_creditos.get_child(0).get_child(1).grab_focus())
+		# O painel cresce com o texto: nunca deixa o botão Voltar fora da tela.
+		_creditos.reset_size()
+		_creditos.position.y = minf(140.0, 360.0 - 8.0 - _creditos.size.y)
+		_voltar_creditos.grab_focus())
 	_botao("titulo.sair", func() -> void: Jogo.sair())
 
 	var rodape := Tema.rotulo(Textos.t("titulo.versao", {"v": ProjectSettings.get_setting("application/config/version")}), Fontes.pequena(), Fontes.TAMANHO_PEQUENA, Tema.COR_TEXTO_FRACO)
@@ -130,11 +134,13 @@ func _montar_interface() -> void:
 	_creditos.position = Vector2(110, 140)
 	_creditos.custom_minimum_size = Vector2(420, 0)
 	var coluna := VBoxContainer.new()
+	coluna.add_child(Tema.rotulo(Textos.t("creditos.titulo"), Fontes.titulo(), Fontes.TAMANHO_TITULO, Tema.COR_DESTAQUE))
 	var texto := Tema.rotulo(Textos.t("creditos.texto"), Fontes.pequena(), Fontes.TAMANHO_PEQUENA)
 	texto.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	texto.custom_minimum_size = Vector2(400, 0)
 	coluna.add_child(texto)
-	var voltar := BotaoMenu.new(Textos.t("creditos.voltar"))
+	_voltar_creditos = BotaoMenu.new(Textos.t("creditos.voltar"))
+	var voltar := _voltar_creditos
 	voltar.pressed.connect(func() -> void:
 		_creditos.visible = false
 		_voltar_ao_menu())

@@ -11,7 +11,7 @@ signal velas_mudaram(atual: int, maximo: int)
 # Combate
 signal golpe_acertou(info: DanoInfo, alvo: Node2D)
 signal inimigo_morreu(inimigo: Node2D, info: DanoInfo)
-signal estado_aplicado(alvo: Node2D, estado_id: StringName)
+signal estado_aplicado(alvo: Node2D, estado: Estado)
 
 # Salas e descida
 signal sala_entrou(sala: Node)

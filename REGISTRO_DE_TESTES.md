@@ -19,7 +19,7 @@ O executor (`testes/executar_testes.gd`) captura **todo erro do motor** por um `
 provocados de propósito são declarados com `esperar_erro()`. Script com erro de compilação
 também reprova. Com `--fixed-fps 60` a simulação é determinística.
 
-**Último resultado (17/10/2026): `RESULTADO: 61 testes, 0 falhas (1.0s)`.**
+**Último resultado (17/10/2026): `RESULTADO: 67 testes, 0 falhas (1.2s)`.**
 
 | Arquivo | Testes | O que garante |
 |---|---|---|
@@ -27,15 +27,15 @@ também reprova. Com `--fixed-fps 60` a simulação é determinística.
 | `unit/teste_gatilhos.gd` | 4 | Etiquetas exigidas, limite de encadeamento (2), recarga interna, profundidade em golpes derivados |
 | `unit/teste_caixa_golpe.gd` | 3 | Um acerto por ativação; desativar+ativar no mesmo quadro funciona; alvo fora do alcance |
 | `unit/teste_salvamento.gd` | 7 | Caminho isolado nos testes, ida e volta, corrompido → backup, `.tmp` mais novo vence, sem backup recomeça, tipos inválidos rejeitam o arquivo, versão antiga ganha campos novos |
-| `unit/teste_config.gd` | 4 | Configurações: ida e volta, valores inválidos viram padrão com aviso, arquivo ilegível, opções de tremor e números de dano mudam o jogo |
+| `unit/teste_config.gd` | 5 | Configurações: ida e volta, valores inválidos viram padrão com aviso, arquivo ilegível, opções de tremor e números de dano mudam o jogo, painel acompanha mudança feita fora dele (F11) |
 | `unit/teste_efeitos.gd` | 3 | Hitstop pedido na física dura o tempo certo; tremor e recuo sobrevivem ao quadro do impacto; hitstop dentro da câmera lenta volta para a câmera lenta |
 | `unit/teste_dados.gd` | 3 | Arma, todas as relíquias e todos os inimigos carregam com classe certa e textos pt-BR preenchidos |
 | `unit/teste_salas.gd` | 5 | As 9 salas são válidas e montam com colisão e chão completos, portas, caminho até a saída; validador rejeita salas quebradas; faces 3/4 das paredes; caminho e visão para quem encosta em objetos baixos |
-| `unit/teste_textos.gd` | 3 | Toda chave usada existe; nada de "TODO", texto provisório ou inglês acidental em textos e dados; campos formatados |
+| `unit/teste_textos.gd` | 4 | Toda chave usada existe; toda chave definida é usada (nada de mensagem morta); nada de "TODO", texto provisório ou inglês acidental em textos e dados; campos formatados |
 | `simulacao/teste_jogador.gd` | 8 | 8 direções sem passar da velocidade, aceleração curta, colisão com parede, esquiva intocável e útil, golpe na cauda da esquiva restaura colisão, combo mata Ressequido, buffer de ataque durante a esquiva |
 | `simulacao/teste_inimigos.gd` | 9 | Ressequido telegrafa, investe e acerta; aviso ≥ 0,5 s (também fortalecido); só golpe forte interrompe; Lamuriante fortalece e lança Lamúria; morte solta ossos e deixa restos; Lamúria some com a sala purificada; restos apagam as luzes e não atravessam paredes |
-| `simulacao/teste_reliquias.gd` | 4 | Vela Perene; Presa aplica Sangria só no golpe final; Sino empurra e atordoa ao esquivar; combinação Sino + Sangria |
-| `simulacao/teste_fluxo.gd` | 3 | Sala tranca, ergue ondas e libera; saída aberta leva adiante; morte mostra a causa, registra no progresso e encerra a câmera lenta |
+| `simulacao/teste_reliquias.gd` | 5 | Vela Perene; Presa aplica Sangria só no golpe final; Sino empurra e atordoa ao esquivar; combinação Sino + Sangria; o nome do estado aplicado sobe sobre o alvo (uma vez) |
+| `simulacao/teste_fluxo.gd` | 6 | Sala tranca, ergue ondas e libera; ninguém sai do mapa pela passagem de entrada; relicário sem relíquias novas oferece oferendas e explica; relicário com relíquias avisa que só uma pode ser levada; saída aberta leva adiante; morte mostra a causa, registra no progresso e encerra a câmera lenta |
 
 Os testes de simulação montam uma sala real (`MundoTeste`) com a Coveira controlada por uma
 fonte de entrada de teste, ou seja, passam pelo mesmo código do jogo.
@@ -51,8 +51,8 @@ real; caixa de golpe "morta" ao desativar e ativar no mesmo quadro; dano aplicad
 flush da física; dois donos da escala de tempo; defeitos nos geradores de arte e áudio.
 
 ### 2ª revisão — M1 jogável (17/10/2026)
-Quatro dimensões: Coveira e combate, inimigos, mundo e salas, interface. Achados corrigidos
-até agora, **cada um com teste que falha no código anterior e passa no novo**:
+Quatro dimensões: Coveira e combate, inimigos, mundo e salas, interface. Todos os achados
+foram corrigidos, **cada um com teste que falha no código anterior e passa no novo**:
 
 | Gravidade | Achado | Correção |
 |---|---|---|
@@ -64,6 +64,20 @@ até agora, **cada um com teste que falha no código anterior e passa no novo**:
 | Baixa | Lamúria em voo tirava vela depois de a sala ser purificada | Desfaz-se em `sala_limpa` |
 | Baixa | Luzes de aviso continuavam acesas nos restos | Luzes se apagam na morte |
 | Baixa | Dica do golpe pesado descrevia o golpe errado | Texto corrigido |
+| Alta | Dava para sair do mapa pela passagem de entrada; se o combate começasse com a Coveira lá fora, a descida travava (no código antigo o teste a encontrou 100 px fora do mapa, com a sala trancada) | Limite físico permanente além de toda passagem; o combate só começa com a Coveira numa célula andável da sala |
+| Baixa | Relicário vazio a partir da profundidade 4 (só há 3 relíquias) | Altares vazios guardam oferendas (ossos; um toco de vela se nenhum tiver relíquia) e uma mensagem explica |
+
+**Como a revisão terminou:** os revisores de Coveira, inimigos e mundo concluíram. O
+verificador da Coveira confirmou que as três correções estavam no código. Os verificadores de
+inimigos e mundo e o **revisor de interface não rodaram**: a sessão bateu no limite de uso.
+No lugar deles: cada achado ganhou um teste de regressão (prova mais forte que um parecer), e a
+interface foi revisada por mim, sem revisor independente. Essa revisão própria achou e corrigiu:
+
+| Achado | Correção |
+|---|---|
+| Quatro textos definidos e nunca exibidos: a instrução do relicário ("Escolha uma relíquia. As outras voltarão ao pó."), o título dos créditos e os nomes dos estados | A instrução aparece ao entrar num relicário com mais de uma relíquia; o nome do estado (Sangria, Atordoado) sobe sobre o alvo quando é aplicado, deixando a combinação legível; créditos com título. Novo teste reprova chave definida e nunca usada |
+| Com o painel de configurações aberto, o F11 mudava a tela cheia mas o texto da opção ficava velho | O painel escuta `Config.mudou` |
+| Com o título novo, o painel de créditos passava da borda da tela e escondia o botão Voltar (visto na captura) | Texto mais enxuto e o painel nunca ultrapassa a tela |
 
 Confirmação do hitstop em jogo real (robô de demonstração, 1500 quadros a 60 fps fixos):
 o código anterior congelou **0 quadros em 15 acertos**; o corrigido congela ~4 quadros por
@@ -78,8 +92,8 @@ silencia o áudio e fecha 0,1 s depois, sem vazamento (verificado com `--verbose
 | O quê | Como | Resultado |
 |---|---|---|
 | Arte provisória (tiles, Coveira, inimigos, objetos, HUD) | Folhas renderizadas ampliadas e inspecionadas | Problemas encontrados e corrigidos: Ressequido com silhueta de elefante, chamas em cruz, "rosto de robô" no altar, piso ruidoso, topo das paredes escuro demais |
-| 8 telas principais (título, antecâmara com dicas, painel de relíquia, pausa, configurações, combate, Coveira tombando, tela de morte) | `testes/captura/capturar_telas.tscn` sob Xvfb | 4 problemas de legibilidade corrigidos (painel sobre as dicas, configurações sobre relíquias, estatísticas da morte, menu do título) |
-| Ciclo completo jogado pelo robô | Movie Maker (`--write-movie`) sob Xvfb, 60 fps fixos, quadros extraídos com ffmpeg | Entrada → combate → relicário (pega relíquia) → combate → arena (2 ondas) → descida → profundidade 2. Vídeo gravado **antes** da correção do hitstop |
+| 10 telas (título, créditos, antecâmara com dicas, painel de relíquia, pausa, configurações, combate com nomes de estados, relicário vazio, Coveira tombando, tela de morte) | `testes/captura/capturar_telas.tscn` sob Xvfb | 5 problemas corrigidos (painel sobre as dicas, configurações sobre relíquias, estatísticas da morte, menu do título, créditos passando da tela) |
+| Ciclo completo jogado pelo robô | Movie Maker (`--write-movie`) sob Xvfb, 30 fps fixos, quadros extraídos com ffmpeg | Entrada → combate → relicário (pega relíquia) → combate → arena (2 ondas) → descida → profundidade 2. Vídeo gravado **antes** da correção do hitstop |
 
 ## 4. Áudio
 

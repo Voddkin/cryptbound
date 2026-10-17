@@ -36,7 +36,7 @@ const TEXTOS: Dictionary[String, String] = {
 	"config.desligado": "Desligado",
 
 	"creditos.titulo": "Créditos",
-	"creditos.texto": "CRYPTBOUND\n\nDireção, programação, arte provisória e áudio provisório:\nprojeto desenvolvido com o auxílio do Claude (Anthropic).\n\nMotor: Godot Engine 4.7 (licença MIT).\n\nFontes (SIL Open Font License 1.1):\nJacquard 12, Jersey 10 e Micro 5 — The Soft Type Project Authors.\n\nObrigado por jogar.",
+	"creditos.texto": "Direção, programação, arte provisória e áudio provisório:\nprojeto desenvolvido com o auxílio do Claude (Anthropic).\n\nMotor: Godot Engine 4.7 (licença MIT).\n\nFontes (SIL Open Font License 1.1):\nJacquard 12, Jersey 10 e Micro 5 — The Soft Type Project Authors.\n\nObrigado por jogar.",
 	"creditos.voltar": "Voltar",
 
 	# HUD
@@ -46,6 +46,7 @@ const TEXTOS: Dictionary[String, String] = {
 	"hud.pegar": "Pegar {nome}",
 	"hud.descer": "Descer mais fundo",
 	"hud.sala_limpa": "As raízes recuam.",
+	"hud.altares_vazios": "Os altares estão vazios. Restam oferendas.",
 	"hud.portas_trancadas": "As raízes fecham a passagem!",
 	"hud.onda": "Mais deles se erguem…",
 	"hud.escolha_reliquia": "Escolha uma relíquia. As outras voltarão ao pó.",

@@ -143,14 +143,33 @@ func iniciar(jogador: Node2D) -> void:
 		estado = Situacao.AGUARDANDO_ENTRADA
 	else:
 		_marcar_limpa(false)
+	if not altares.is_empty():
+		_preparar_altares()
+
+
+## Relicário: avisa que só uma relíquia pode ser levada. Sem relíquias novas para oferecer,
+## os altares vazios guardam oferendas: ossos e, se nenhum altar tiver relíquia, um toco de
+## vela. O relicário nunca é uma sala morta.
+func _preparar_altares() -> void:
+	var vazios := altares.filter(func(a: Altar) -> bool: return a.item == null)
+	if altares.size() - vazios.size() > 1:
+		Eventos.mensagem.emit(Textos.t("hud.escolha_reliquia"), 2.4)
+	for altar: Altar in vazios:
+		for i in 3:
+			mundo.add_child(Coletavel.criar(Coletavel.Tipo.OSSO, 1, altar.position + Vector2(0, 8),
+				Vector2(_rng.randf_range(-24.0, 24.0), _rng.randf_range(6.0, 24.0))))
+	if not vazios.is_empty() and vazios.size() == altares.size():
+		mundo.add_child(Coletavel.criar(Coletavel.Tipo.VELA, 1, vazios[0].position + Vector2(0, 10), Vector2(0, 14)))
+		Eventos.mensagem.emit(Textos.t("hud.altares_vazios"), 2.4)
 
 
 func _physics_process(_delta: float) -> void:
 	if estado != Situacao.AGUARDANDO_ENTRADA or _jogador == null:
 		return
-	# Só tranca quando a Coveira já está toda dentro (longe da passagem de entrada).
+	# Só tranca com a Coveira toda dentro: numa célula andável da sala, longe da passagem de
+	# entrada (nunca na passagem nem fora da grade, senão as raízes a deixariam lá fora).
 	var c := celula_de(_jogador.global_position)
-	if _eh_porta(c):
+	if _eh_porta(c) or not andavel(c):
 		return
 	var entrada_c := definicao.celula_dentro_da_porta(definicao.entrada) if definicao.entrada != "" else c
 	if definicao.entrada != "" and centro_celula(entrada_c).distance_to(_jogador.global_position) < 18.0:

@@ -67,3 +67,24 @@ func teste_opcao_de_tremor_e_de_numeros_muda_o_jogo() -> void:
 	afirmar_igual(m.numeros._lista.size(), 1, "desligados, não aparecem")
 	m.queue_free()
 	Efeitos.limpar_registro()
+
+
+func teste_painel_acompanha_mudanca_feita_fora_dele() -> void:
+	var painel := PainelConfig.new()
+	add_child(painel)
+	Config.definir(&"jogo", &"numeros_dano", true)
+	var botao := _botao_com_texto(painel, Textos.t("config.numeros_dano"))
+	afirmar(botao != null, "o painel tem a opção de números de dano")
+	if botao:
+		afirmar(botao.text.ends_with(Textos.t("config.ligado")), "mostra ligado")
+		# Como o F11 faz com a tela cheia: muda a opção sem passar pelo painel.
+		Config.definir(&"jogo", &"numeros_dano", false)
+		afirmar(botao.text.ends_with(Textos.t("config.desligado")), "o texto acompanha a mudança")
+	painel.queue_free()
+
+
+func _botao_com_texto(raiz: Node, comeco: String) -> Button:
+	for no in raiz.find_children("*", "Button", true, false):
+		if (no as Button).text.begins_with(comeco):
+			return no as Button
+	return null

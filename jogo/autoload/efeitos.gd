@@ -28,6 +28,7 @@ var _ondas: Node2D
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	Eventos.estado_aplicado.connect(_ao_aplicar_estado)
 
 
 func registrar(particulas: SistemaParticulas, manchas: ManchasChao, numeros: NumerosDano, ondas: Node2D) -> void:
@@ -141,6 +142,15 @@ func numero(posicao: Vector2, valor: float, cor: Color = Color("f0e8d2"), critic
 	if _numeros == null or not bool(Config.obter(&"jogo", &"numeros_dano")):
 		return
 	_numeros.adicionar(posicao, valor, cor, critico)
+
+
+## O nome do estado sobe sobre o alvo quando é aplicado: a combinação fica legível
+## (a Presa fez sangrar, o Sino atordoou).
+func _ao_aplicar_estado(alvo: Node2D, estado: Estado) -> void:
+	var chave := "estado.%s" % estado.id
+	if _numeros == null or not is_instance_valid(alvo) or not Textos.existe(chave):
+		return
+	_numeros.adicionar_texto(alvo.global_position + Vector2(0, -30), Textos.t(chave), estado.cor_nome())
 
 
 func onda(posicao: Vector2, raio: float, estilo: StringName = &"badalo") -> void:

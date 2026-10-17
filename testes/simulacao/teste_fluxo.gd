@@ -57,6 +57,73 @@ func teste_sala_tranca_ergue_ondas_e_libera() -> void:
 	afirmar_igual(Jogo.salas_limpas, 1, "estatística de salas")
 
 
+func teste_ninguem_sai_do_mapa_pela_passagem_de_entrada() -> void:
+	m = MundoTeste.criar(self, SALA_COMBATE)
+	m.sala.iniciar(m.jogador)
+	await quadros(2)
+	var fundo := m.sala.altura_px()
+	# Anda para trás pela passagem de entrada e ainda esquiva na mesma direção.
+	m.entrada.mover = Vector2.DOWN
+	await quadros(30)
+	m.entrada.esquivar = true
+	await quadros(2)
+	m.entrada.esquivar = false
+	await quadros(40)
+	afirmar(m.jogador.global_position.y < fundo, "a Coveira continua dentro do mapa (y = %.1f, borda em %.1f)" % [m.jogador.global_position.y, fundo])
+	afirmar_igual(m.sala.estado, Sala.Situacao.AGUARDANDO_ENTRADA, "o combate não começa com a Coveira na passagem")
+	# Voltando para dentro, a sala tranca normalmente com ela do lado certo.
+	m.entrada.mover = Vector2.UP
+	for i in 90:
+		await quadros(1)
+		if m.sala.estado == Sala.Situacao.COMBATE:
+			break
+	m.entrada.mover = Vector2.ZERO
+	afirmar_igual(m.sala.estado, Sala.Situacao.COMBATE, "o combate começa quando ela entra")
+	afirmar(m.sala.andavel(m.sala.celula_de(m.jogador.global_position)), "e ela está numa célula andável da sala")
+
+
+func teste_relicario_sem_reliquias_novas_oferece_oferendas() -> void:
+	var texto := FileAccess.get_file_as_string("res://dados/salas/catacumbas/relicario.txt")
+	m = MundoTeste.criar(self, texto)
+	var mensagens: Array[String] = []
+	var ouvir := func(t: String, _d: float = 0.0) -> void: mensagens.append(t)
+	Eventos.mensagem.connect(ouvir)
+	m.sala.iniciar(m.jogador)
+	Eventos.mensagem.disconnect(ouvir)
+	await quadros(2)
+	afirmar(m.sala.altares.size() >= 2, "o relicário tem altares (%d)" % m.sala.altares.size())
+	var ossos := 0
+	var velas := 0
+	for c in get_tree().get_nodes_in_group(&"coletaveis"):
+		if c.tipo == Coletavel.Tipo.OSSO:
+			ossos += 1
+		else:
+			velas += 1
+	afirmar_igual(ossos, 3 * m.sala.altares.size(), "três ossos de oferenda por altar vazio")
+	afirmar_igual(velas, 1, "e um toco de vela")
+	afirmar(mensagens.has(Textos.t("hud.altares_vazios")), "o jogador sabe por que os altares estão vazios")
+
+
+func teste_relicario_com_reliquias_avisa_que_so_uma_pode_ser_levada() -> void:
+	var texto := FileAccess.get_file_as_string("res://dados/salas/catacumbas/relicario.txt")
+	var def := DefinicaoSala.de_texto(texto)
+	var itens: Array[ItemDados] = []
+	for id in ["presa_cao_de_cova", "sino_rachado", "vela_perene"]:
+		itens.append(load("res://dados/itens/%s.tres" % id) as ItemDados)
+	Jogo.nova_descida(9)
+	var sala := ConstrutorSala.construir(def, 9, itens)
+	add_child(sala)
+	var mensagens: Array[String] = []
+	var ouvir := func(t: String, _d: float = 0.0) -> void: mensagens.append(t)
+	Eventos.mensagem.connect(ouvir)
+	sala.iniciar(Node2D.new())
+	Eventos.mensagem.disconnect(ouvir)
+	await quadros(2)
+	afirmar(mensagens.has(Textos.t("hud.escolha_reliquia")), "aviso de que só uma relíquia pode ser levada")
+	afirmar_igual(get_tree().get_nodes_in_group(&"coletaveis").size(), 0, "sem oferendas quando há relíquias")
+	sala.queue_free()
+
+
 func teste_saida_aberta_leva_adiante() -> void:
 	m = MundoTeste.criar(self, SALA_COMBATE)
 	var atravessou := [false]

@@ -41,6 +41,11 @@ func cor_realce() -> Color:
 	return Color(0, 0, 0, 0)
 
 
+## Cor do nome do estado quando ele aparece sobre o alvo (a cor do realce, opaca e clara).
+func cor_nome() -> Color:
+	return Color(cor_realce(), 1.0).lightened(0.3)
+
+
 ## Verdadeiro se o hospedeiro não pode agir (atordoamento, congelamento...).
 func impede_acao() -> bool:
 	return false

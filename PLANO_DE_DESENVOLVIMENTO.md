@@ -15,7 +15,7 @@ Critérios (todos verificados — ver `REGISTRO_DE_TESTES.md`):
 - Recompensas: 3 relíquias com combinação, ossos, tocos de vela. ✅
 - Transições entre salas e profundidades repetíveis. ✅
 - Interface em pt-BR: título, HUD, pausa, configurações, tela de morte. ✅
-- Testes automatizados (61) + simulação + vídeo com robô + exportação Windows/Linux rodando
+- Testes automatizados (67) + simulação + vídeo com robô + exportação Windows/Linux rodando
   fora do editor. ✅
 
 ## M2 — Combinações e identidade ⏳ (próximo)

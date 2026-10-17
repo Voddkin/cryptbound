@@ -1,8 +1,10 @@
 class_name NumerosDano
 extends Node2D
-## Números de dano que sobem e somem. Desenhados com contorno de 1 px para leitura.
+## Números de dano (e nomes de estados aplicados) que sobem e somem. Desenhados com
+## contorno de 1 px para leitura.
 
 const DURACAO := 0.65
+const DURACAO_TEXTO := 1.0
 const SUBIDA := 14.0
 
 var _fonte: Font
@@ -16,11 +18,17 @@ func _ready() -> void:
 func adicionar(posicao: Vector2, valor: float, cor: Color, critico: bool) -> void:
 	# Golpes quase simultâneos no mesmo alvo somam no mesmo número.
 	for n in _lista:
-		if n.origem.distance_to(posicao) < 6.0 and n.vida > DURACAO - 0.12 and n.cor == cor:
+		if not n.has("texto") and n.origem.distance_to(posicao) < 6.0 and n.vida > DURACAO - 0.12 and n.cor == cor:
 			n.valor += valor
 			queue_redraw()
 			return
-	_lista.append({"origem": posicao, "pos": posicao + Vector2(randf_range(-3, 3), -18), "valor": valor, "cor": cor, "vida": DURACAO, "critico": critico})
+	_lista.append({"origem": posicao, "pos": posicao + Vector2(randf_range(-3, 3), -18), "valor": valor, "cor": cor, "vida": DURACAO, "duracao": DURACAO, "critico": critico})
+	queue_redraw()
+
+
+## Uma palavra que sobe sobre o alvo (por exemplo, o nome do estado recém-aplicado).
+func adicionar_texto(posicao: Vector2, texto: String, cor: Color) -> void:
+	_lista.append({"origem": posicao, "pos": posicao, "texto": texto, "cor": cor, "vida": DURACAO_TEXTO, "duracao": DURACAO_TEXTO})
 	queue_redraw()
 
 
@@ -38,9 +46,9 @@ func _draw() -> void:
 		return
 	var tamanho := Fontes.TAMANHO_PEQUENA
 	for n in _lista:
-		var t: float = 1.0 - n.vida / DURACAO
+		var t: float = 1.0 - n.vida / n.duracao
 		var subida := SUBIDA * (1.0 - pow(1.0 - minf(t * 1.6, 1.0), 3.0))
-		var texto := str(int(roundf(n.valor)))
+		var texto: String = n.texto if n.has("texto") else str(int(roundf(n.valor)))
 		var largura := _fonte.get_string_size(texto, HORIZONTAL_ALIGNMENT_LEFT, -1, tamanho).x
 		var pos := Vector2(roundf(n.pos.x - largura * 0.5), roundf(n.pos.y - subida))
 		var cor: Color = n.cor

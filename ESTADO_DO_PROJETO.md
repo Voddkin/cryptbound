@@ -26,18 +26,18 @@ Arte e áudio são **provisórios**, gerados por código (scripts em `ferramenta
 | Coveira: movimento em 8 direções, esquiva intocável, combo de 3, golpe pesado carregado, buffer de entrada | ✅ | Testes de simulação + vídeo com o robô |
 | Feedback: hitstop, tremor, recuo de câmera, flash, partículas, números de dano, sons | ✅ | Testes (`teste_efeitos`) + vídeo. O hitstop e o tremor **não funcionavam** até a 2ª revisão (ver §5) |
 | Ressequido (investida telegrafada, postura) e Lamuriante (Lamúria, fortalece aliados) | ✅ | Testes de simulação + vídeo |
-| 3 relíquias com combinação real (Presa + Sino) | ✅ | Testes de simulação |
-| 9 salas em ASCII, portas que trancam, ondas, reforços por profundidade | ✅ | Testes de validação/montagem de todas as salas + vídeo |
+| 3 relíquias com combinação real (Presa + Sino); o nome do estado aplicado sobe sobre o alvo | ✅ | Testes de simulação + captura |
+| 9 salas em ASCII, portas que trancam, ondas, reforços por profundidade; ninguém sai do mapa pelas passagens; relicário sem relíquias novas oferece ossos e um toco de vela | ✅ | Testes de validação/montagem de todas as salas, de fluxo + vídeo |
 | Sequência entrada → combate → relicário → combate → arena → descida → profundidade +1 | ✅ | Vídeo do robô até a profundidade 2 |
 | Interface em pt-BR: título, HUD, painel de relíquia, pausa, configurações, tela de morte | ✅ | Capturas de tela revisadas + lint de textos |
-| Configurações (volumes geral/música/efeitos, tremor de tela, tela cheia, V-Sync, números de dano) salvas em `config.cfg` | ✅ | 4 testes (`teste_config`): ida e volta, valores inválidos, arquivo ilegível, efeito no jogo |
+| Configurações (volumes geral/música/efeitos, tremor de tela, tela cheia, V-Sync, números de dano) salvas em `config.cfg` | ✅ | 5 testes (`teste_config`): ida e volta, valores inválidos, arquivo ilegível, efeito no jogo, F11 com o painel aberto |
 | Salvamento robusto (temporário + validação + backup, recuperação de arquivo corrompido) | ✅ | 7 testes de salvamento |
 | Controles: teclado + mouse e controle (analógicos, gatilhos) | ⚠️ | Teclado/mouse por simulação; **controle físico nunca foi testado** |
 | Executável Windows x86_64 (PCK embutido, ícone, metadados) | ✅ | `pefile` + execução no **Wine 11.18** com renderização (não é Windows real) |
 | Executável Linux x86_64 | ✅ | Execução fora do editor sob Xvfb |
 | Desempenho | ✅ | Cena de estresse com 30 inimigos (ver `REGISTRO_DE_TESTES.md`) |
 
-**Testes automatizados:** 61, todos passando (`ferramentas/testar.sh`).
+**Testes automatizados:** 67, todos passando (`ferramentas/testar.sh`).
 
 ## 3. O que é provisório
 
@@ -81,7 +81,7 @@ planejado em `PLANO_DE_DESENVOLVIMENTO.md` e detalhado em `DOCUMENTO_DE_DESIGN.m
 ```bash
 godot --path .                                           # abre o jogo (tela de título)
 godot --path . res://jogo/mundo/descida.tscn -- --demo   # robô joga sozinho
-ferramentas/testar.sh                                    # 61 testes (headless, 60 quadros fixos)
+ferramentas/testar.sh                                    # 67 testes (headless, 60 quadros fixos)
 ferramentas/testar.sh teste_jogador                      # só os testes cujo nome contém o filtro
 ferramentas/exportar.sh                                  # build/windows/CRYPTBOUND.exe e build/linux/
 ferramentas/empacotar.sh                                 # entregas/CRYPTBOUND-windows-x64-<versão>.zip
@@ -116,7 +116,7 @@ real do jogador (`%APPDATA%\CRYPTBOUND` no Windows, `~/.local/share/CRYPTBOUND` 
 3. **Python** (só para regenerar arte/áudio e checar o `.exe`): `pip install pillow numpy fonttools pefile`
    (ffmpeg e ImageMagick vêm do sistema).
 4. **Primeira importação:** `godot --headless --path . --import` (cria `.godot/`).
-5. **Conferir:** `ferramentas/testar.sh` deve terminar com `RESULTADO: 61 testes, 0 falhas`.
+5. **Conferir:** `ferramentas/testar.sh` deve terminar com `RESULTADO: 67 testes, 0 falhas`.
 6. **Testar o `.exe` sem Windows (opcional):**
    - `https://github.com/Kron4ek/Wine-Builds/releases/download/11.18/wine-11.18-amd64-wow64.tar.xz`
      (a variante WoW64 dispensa bibliotecas de 32 bits).

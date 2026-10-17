@@ -34,6 +34,21 @@ func teste_chaves_usadas_existem() -> void:
 		afirmar(Textos.existe(chave), "chave '%s' usada em %s existe" % [chave, usadas[chave]])
 
 
+func teste_toda_chave_definida_e_usada() -> void:
+	# Chaves mortas escondem mensagens que o jogador deveria ver (ou sobram de código velho).
+	# Vale qualquer uso literal: Textos.t("chave"), a chave passada a um auxiliar ou uma família
+	# montada em tempo de execução ("estado.%s" % id).
+	var codigo := ""
+	for caminho in _arquivos("res://jogo", ".gd"):
+		if not caminho.ends_with("textos/textos.gd"):
+			codigo += FileAccess.get_file_as_string(caminho)
+	var mortas: Array[String] = []
+	for chave: String in Textos.TEXTOS:
+		if not codigo.contains("\"%s\"" % chave) and not codigo.contains("\"%s.%%s\"" % chave.get_slice(".", 0)):
+			mortas.append(chave)
+	afirmar(mortas.is_empty(), "chaves definidas e nunca usadas: %s" % ", ".join(mortas))
+
+
 func teste_textos_sem_provisorio_nem_ingles() -> void:
 	var textos: Array[String] = []
 	for chave: String in Textos.TEXTOS:

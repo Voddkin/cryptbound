@@ -6,6 +6,8 @@ extends PanelContainer
 signal fechado
 
 var _primeiro: Control
+## Refazem o texto das opções liga/desliga (a tela cheia também muda pelo F11).
+var _atualizadores: Array[Callable] = []
 
 
 func _ready() -> void:
@@ -26,6 +28,12 @@ func _ready() -> void:
 	var voltar := BotaoMenu.new(Textos.t("config.voltar"))
 	voltar.pressed.connect(fechar)
 	coluna.add_child(voltar)
+	Config.mudou.connect(_ao_mudar_config)
+
+
+func _ao_mudar_config(_secao: StringName, _chave: StringName, _valor: Variant) -> void:
+	for atualizar in _atualizadores:
+		atualizar.call()
 
 
 func abrir() -> void:
@@ -72,7 +80,6 @@ func _caixa(pai: Control, chave_texto: String, secao: StringName, chave: StringN
 		var ligado := bool(Config.obter(secao, chave))
 		botao.text = "%s: %s" % [Textos.t(chave_texto), Textos.t("config.ligado" if ligado else "config.desligado")]
 	atualizar.call()
-	botao.pressed.connect(func() -> void:
-		Config.definir(secao, chave, not bool(Config.obter(secao, chave)))
-		atualizar.call())
+	_atualizadores.append(atualizar)
+	botao.pressed.connect(func() -> void: Config.definir(secao, chave, not bool(Config.obter(secao, chave))))
 	pai.add_child(botao)

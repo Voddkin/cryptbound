@@ -27,7 +27,7 @@ func aplicar(estado: Estado) -> void:
 	_ativos[estado.id] = estado
 	estado.ao_aplicar()
 	estado_adicionado.emit(estado)
-	Eventos.estado_aplicado.emit(hospedeiro, estado.id)
+	Eventos.estado_aplicado.emit(hospedeiro, estado)
 
 
 func remover(id: StringName) -> void:

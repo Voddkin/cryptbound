@@ -16,6 +16,18 @@ func _item(id: String) -> ItemDados:
 	return load("res://dados/itens/%s.tres" % id) as ItemDados
 
 
+func teste_estado_aplicado_mostra_o_nome_sobre_o_alvo() -> void:
+	await quadros(2)
+	var alvo := m.inimigo(&"ressequido", m.jogador.global_position + Vector2(40, 0))
+	var sangria := EstadoSangria.new()
+	alvo.estados.aplicar(sangria)
+	var nomes: Array = m.numeros._lista.filter(func(n: Dictionary) -> bool: return n.get("texto", "") == Textos.t("estado.sangria"))
+	afirmar_igual(nomes.size(), 1, "\"Sangria\" sobe sobre o alvo")
+	alvo.estados.aplicar(EstadoSangria.new())
+	nomes = m.numeros._lista.filter(func(n: Dictionary) -> bool: return n.has("texto"))
+	afirmar_igual(nomes.size(), 1, "reaplicar (acumular) não repete o nome")
+
+
 func teste_vela_perene_aumenta_e_acende() -> void:
 	Jogo.perder_velas(2)
 	var antes_max := Jogo.velas_max

@@ -54,6 +54,19 @@ func _ready() -> void:
 	_forma_bloqueio.disabled = true
 	_bloqueio.add_child(_forma_bloqueio)
 	add_child(_bloqueio)
+	# Limite permanente logo além da borda: ninguém sai do mapa pela passagem (aberta ou não).
+	var limite := StaticBody2D.new()
+	limite.name = "Limite"
+	limite.collision_layer = 1
+	limite.collision_mask = 0
+	var forma_limite := CollisionShape2D.new()
+	var ret_limite := RectangleShape2D.new()
+	var alem := _faixa_alem(local)
+	ret_limite.size = alem.size
+	forma_limite.shape = ret_limite
+	forma_limite.position = alem.get_center()
+	limite.add_child(forma_limite)
+	add_child(limite)
 	# Raízes na borda interna da passagem
 	_raizes = BibliotecaSprites.criar_animado("res://arte/props/porta_raizes.json" if horizontal() else "res://arte/props/porta_raizes_v.json", &"crescer")
 	_raizes.stop()
@@ -93,6 +106,16 @@ func _faixa_externa(local: Rect2) -> Rect2:
 		"<": return Rect2(local.position, Vector2(10, local.size.y))
 		">": return Rect2(Vector2(local.end.x - 10, local.position.y), Vector2(10, local.size.y))
 	return local
+
+
+## Faixa de uma célula logo depois da borda externa da passagem (fora da grade da sala).
+func _faixa_alem(local: Rect2) -> Rect2:
+	match simbolo:
+		"^": return Rect2(local.position - Vector2(0, T), Vector2(local.size.x, T))
+		"v": return Rect2(Vector2(local.position.x, local.end.y), Vector2(local.size.x, T))
+		"<": return Rect2(local.position - Vector2(T, 0), Vector2(T, local.size.y))
+		">": return Rect2(Vector2(local.end.x, local.position.y), Vector2(T, local.size.y))
+	return Rect2(local.end, Vector2.ZERO)
 
 
 func _criar_arco(local: Rect2) -> void:

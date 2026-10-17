@@ -90,6 +90,8 @@ Inimigos se erguem da terra (0,55 s, intocáveis, com poeira e terra). Ao morrer
   4 s). Ficar parado não sangra; **ser empurrado sangra**. Dano de estado não dispara efeitos
   de relíquias (evita ciclos).
 - **Atordoado**: o alvo não age pela duração.
+- Ao ser aplicado, o **nome do estado sobe sobre o alvo** na cor do estado: a combinação que
+  acabou de acontecer fica legível no meio da luta.
 - [planejado] Seiva, Brasa, Esporos, Eco, Pavor e **reações** entre eles (ex.: Seiva + Brasa =
   explosão resinosa), com tabela de reações em dados.
 
@@ -110,8 +112,10 @@ Sistema: cada relíquia tem efeitos com **gatilho** (`ao_adquirir`, `ao_acertar`
 seguinte o empurra para longe, e o empurrão *é* deslocamento: ele sangra sem precisar andar.
 
 Relicário: uma sala por profundidade oferece até 3 relíquias que a Coveira ainda não tem;
-escolher uma desfaz as outras em pó. [planejado] Quando não houver relíquias novas, oferecer
-alternativas (tocos de vela, ossos ou Promessas).
+escolher uma desfaz as outras em pó (uma mensagem avisa ao entrar). Quando não há relíquias
+novas, os altares vazios guardam **oferendas**: três ossos cada e, se nenhum altar tiver
+relíquia, um toco de vela, com a mensagem "Os altares estão vazios. Restam oferendas."
+[planejado] Promessas como alternativa quando houver mais conteúdo.
 
 ## 7. Mundo e estrutura de uma descida [feito]
 

@@ -32,6 +32,11 @@ func _roteiro() -> void:
 	add_child(titulo)
 	await _quadros(90)
 	await _foto("01_titulo")
+	for botao in titulo._menu.get_children():
+		if botao is BotaoMenu and (botao as BotaoMenu).text == Textos.t("titulo.creditos"):
+			(botao as BotaoMenu).pressed.emit()
+	await _quadros(5)
+	await _foto("01b_creditos")
 	titulo.queue_free()
 	await _quadros(2)
 
@@ -65,16 +70,27 @@ func _roteiro() -> void:
 	# 5. Combate: Ressequido preparando e Lamuriante cantando ao lado da Coveira
 	var sala := descida.sala
 	var base := descida.jogador.global_position
+	var erguidos: Array[Inimigo] = []
 	for d in [[&"ressequido", Vector2(40, -10)], [&"lamuriante", Vector2(-60, -30)], [&"ressequido", Vector2(-30, 30)]]:
 		var i := FabricaInimigos.criar(d[0])
 		i.sala = sala
 		i.position = base + d[1]
 		sala.mundo.add_child(i)
 		i.pular_surgimento()
-	await _quadros(50)
+		erguidos.append(i)
+	await _quadros(40)
+	erguidos[0].estados.aplicar(EstadoSangria.new())
+	erguidos[2].estados.aplicar(EstadoAtordoado.new())
+	await _quadros(10)
 	await _foto("06_combate")
 
-	# 6. Morte e tela de morte
+	# 6. Relicário sem relíquias novas (as três já foram levadas): oferendas e aviso
+	Jogo.adicionar_item(load("res://dados/itens/vela_perene.tres") as ItemDados, descida.jogador)
+	descida.entrar_sala(descida.sequencia.find("relicario"))
+	await _quadros(50)
+	await _foto("06b_relicario_vazio")
+
+	# 7. Morte e tela de morte
 	Jogo.perder_velas(Jogo.velas - 1)
 	var golpe := DanoInfo.new()
 	golpe.valor = 1.0
