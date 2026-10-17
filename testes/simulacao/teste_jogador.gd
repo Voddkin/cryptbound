@@ -72,6 +72,24 @@ func teste_esquiva_concede_invulnerabilidade() -> void:
 	afirmar(not m.jogador.receber_dano(_golpe_inimigo()), "invulnerabilidade curta após o dano")
 
 
+func teste_golpe_no_fim_da_esquiva_restaura_colisao_com_inimigos() -> void:
+	await quadros(2)
+	m.entrada.mover = Vector2.RIGHT
+	m.entrada.esquivar = true
+	await quadros(1)
+	m.entrada.esquivar = false
+	# Espera passar a invulnerabilidade (0,18 s) sem terminar a esquiva (0,24 s).
+	while m.jogador.estado == Jogador.Situacao.ESQUIVANDO and m.jogador.invulneravel():
+		await quadros(1)
+	afirmar_igual(m.jogador.estado, Jogador.Situacao.ESQUIVANDO, "ainda na cauda da esquiva")
+	afirmar(m.jogador.receber_dano(_golpe_inimigo()), "a cauda da esquiva é vulnerável")
+	afirmar(m.jogador.collision_mask & Jogador.CAMADA_INIMIGOS != 0, "volta a colidir com inimigos")
+	m.entrada.mover = Vector2.ZERO
+	m.entrada.esquivar = true
+	await quadros(14)
+	afirmar(m.jogador.estado != Jogador.Situacao.ESQUIVANDO, "a recarga da esquiva também foi aplicada")
+
+
 func teste_esquiva_percorre_distancia_util() -> void:
 	await quadros(2)
 	var inicio := m.jogador.global_position

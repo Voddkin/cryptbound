@@ -42,6 +42,21 @@ func teste_preparo_dura_o_suficiente_para_reagir() -> void:
 	afirmar(quadros_preparo >= 30, "preparo visível por pelo menos 0,5 s (%d quadros)" % quadros_preparo)
 
 
+func teste_preparo_fortalecido_tambem_dura_o_suficiente() -> void:
+	await quadros(2)
+	var r := m.inimigo(&"ressequido", m.jogador.global_position + Vector2(36, 0)) as Ressequido
+	var quadros_preparo := 0
+	for i in 200:
+		r.fortalecer(1.0)
+		await quadros(1)
+		if r.acao == Ressequido.Acao.PREPARAR:
+			quadros_preparo += 1
+		elif quadros_preparo > 0:
+			break
+	afirmar(r.esta_fortalecido(), "Ressequido fortalecido durante o teste")
+	afirmar(quadros_preparo >= 30, "fortalecido, o aviso continua com 0,5 s ou mais (%d quadros)" % quadros_preparo)
+
+
 func teste_golpe_leve_nao_interrompe_preparo_mas_pancada_sim() -> void:
 	await quadros(2)
 	var r := m.inimigo(&"ressequido", m.jogador.global_position + Vector2(36, 0)) as Ressequido
@@ -103,6 +118,41 @@ func teste_morte_solta_ossos_e_deixa_restos() -> void:
 	afirmar(ossos >= r.dados.ossos_min, "soltou ossos (%d)" % ossos)
 	afirmar(is_instance_valid(r) and r.fase == Inimigo.Fase.MORTO, "os restos ficam na sala")
 	afirmar(r.z_index < 0, "restos desenhados abaixo dos vivos")
+
+
+func teste_lamuria_se_desfaz_quando_a_sala_e_purificada() -> void:
+	await quadros(2)
+	var p := ProjetilLamuria.new()
+	p.direcao = Vector2.LEFT
+	p.position = m.jogador.global_position + Vector2(120, 0)
+	m.sala.mundo.add_child(p)
+	await quadros(2)
+	afirmar(p.esta_vivo(), "a Lamúria voa")
+	Eventos.sala_limpa.emit(m.sala)
+	await quadros(2)
+	afirmar(not is_instance_valid(p) or not p.esta_vivo(), "sala purificada desfaz a Lamúria")
+
+
+func teste_restos_apagam_as_luzes_e_nao_atravessam_paredes() -> void:
+	await quadros(2)
+	var direita := m.sala.centro_celula(Vector2i(m.sala.definicao.largura - 2, 6))
+	var r := m.inimigo(&"ressequido", direita + Vector2(-6, 0))
+	var l := m.inimigo(&"lamuriante", m.jogador.global_position + Vector2(-60, 0))
+	await quadros(2)
+	var golpe := _dano_letal()
+	golpe.direcao = Vector2.RIGHT
+	golpe.empurrao = 300.0
+	r.receber_dano(golpe)
+	l.receber_dano(_dano_letal())
+	await quadros(90)
+	var limite := float((m.sala.definicao.largura - 1) * 16)
+	afirmar(r.global_position.x < limite, "o cadáver para na parede (x = %.1f, parede em %.1f)" % [r.global_position.x, limite])
+	for inimigo: Node in [r, l]:
+		var acesas := 0
+		for luz: PointLight2D in inimigo.find_children("*", "PointLight2D", true, false):
+			if luz.visible and luz.energy > 0.01:
+				acesas += 1
+		afirmar_igual(acesas, 0, "%s: luzes apagadas nos restos" % inimigo.name)
 
 
 func _dano_letal() -> DanoInfo:

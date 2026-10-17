@@ -366,13 +366,18 @@ func _estado_esquivando(delta: float) -> void:
 		_residuo = 0.035
 		_deixar_residuo()
 	if k >= 1.0:
+		_sair_da_esquiva()
 		estado = Situacao.LIVRE
-		collision_mask = CAMADA_MUNDO | CAMADA_INIMIGOS
-		_recarga_esquiva = ESQUIVA_RECARGA
 		_escala = Vector2(0.9, 1.1)
 		# Ataque pedido durante a esquiva sai logo em seguida (esquiva → contra-ataque).
 		if _pedido_ataque > _inicio_esquiva:
 			_pedido_ataque = _relogio
+
+
+## Volta a colidir com inimigos e começa a recarga (fim normal ou golpe no fim da esquiva).
+func _sair_da_esquiva() -> void:
+	collision_mask = CAMADA_MUNDO | CAMADA_INIMIGOS
+	_recarga_esquiva = ESQUIVA_RECARGA
 
 
 func _estado_atingido(delta: float) -> void:
@@ -442,6 +447,8 @@ func receber_dano(info: DanoInfo) -> bool:
 	_empurrao = info.direcao.normalized() * info.empurrao
 	if estado == Situacao.ATACANDO or estado == Situacao.CARREGANDO:
 		_encerrar_golpe(false)
+	elif estado == Situacao.ESQUIVANDO:
+		_sair_da_esquiva()
 	Eventos.jogador_atingido.emit(info)
 	gatilhos.disparar(&"ao_sofrer_dano", ContextoEfeito.new(self, info.atacante, info, global_position), Jogo.itens)
 	if Jogo.velas <= 0:

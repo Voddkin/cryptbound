@@ -80,20 +80,42 @@ func posicao_chegada() -> Vector2:
 
 ## Caminho (pontos em pixels) de `de` até `para`, contornando paredes e objetos.
 func caminho(de: Vector2, para: Vector2) -> PackedVector2Array:
-	var a := celula_de(de)
-	var b := celula_de(para)
-	if not andavel(a) or not andavel(b):
+	# Objetos (caixões, crânios) colidem só com parte da célula: quem encosta neles pode
+	# estar numa célula sólida da grade. Nesse caso usa a vizinha andável mais próxima.
+	var a := _andavel_mais_proxima(de)
+	var b := _andavel_mais_proxima(para)
+	if a.x < 0 or b.x < 0:
 		return PackedVector2Array()
 	return astar.get_point_path(a, b, true)
 
 
-## Linha de visão em grade (paredes e objetos altos bloqueiam).
+func _andavel_mais_proxima(p: Vector2) -> Vector2i:
+	var c := celula_de(p)
+	if andavel(c):
+		return c
+	var melhor := Vector2i(-1, -1)
+	var melhor_dist := INF
+	for dy in range(-1, 2):
+		for dx in range(-1, 2):
+			var v := c + Vector2i(dx, dy)
+			if andavel(v) and centro_celula(v).distance_squared_to(p) < melhor_dist:
+				melhor = v
+				melhor_dist = centro_celula(v).distance_squared_to(p)
+	return melhor
+
+
+## Linha de visão em grade (paredes e objetos altos bloqueiam). As células das duas pontas
+## não contam: quem encosta num objeto baixo pode estar com os pés numa célula "sólida".
 func visao_livre(de: Vector2, para: Vector2) -> bool:
+	var celula_de_origem := celula_de(de)
+	var celula_de_destino := celula_de(para)
 	var dist := de.distance_to(para)
 	var passos := int(ceil(dist / 4.0))
 	for i in range(1, passos):
-		var p := de.lerp(para, float(i) / passos)
-		if definicao.eh_parede(celula_de(p)) or (astar.is_in_boundsv(celula_de(p)) and astar.is_point_solid(celula_de(p)) and not _eh_porta(celula_de(p))):
+		var c := celula_de(de.lerp(para, float(i) / passos))
+		if c == celula_de_origem or c == celula_de_destino:
+			continue
+		if definicao.eh_parede(c) or (astar.is_in_boundsv(c) and astar.is_point_solid(c) and not _eh_porta(c)):
 			return false
 	return true
 

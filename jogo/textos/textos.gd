@@ -56,7 +56,7 @@ const TEXTOS: Dictionary[String, String] = {
 	# Dicas de controle exibidas na primeira sala
 	"dica.mover": "Mova-se com {tecla}.",
 	"dica.atacar": "{tecla}: golpe com a pá. Golpes seguidos formam um combo de três.",
-	"dica.pesado": "Segure {tecla}: pancada carregada que empurra e interrompe.",
+	"dica.pesado": "Segure {tecla} e solte: cavada carregada que arremessa tudo ao redor.",
 	"dica.esquivar": "{tecla}: esquiva. Você fica intocável no início do movimento.",
 
 	# Morte

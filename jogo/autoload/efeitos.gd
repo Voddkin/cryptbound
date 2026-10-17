@@ -3,6 +3,7 @@ extends Node
 ## e números de dano. A cena da descida registra os nós de desenho com `registrar`.
 
 const TRAUMA_DECAIMENTO := 2.2
+const ESCALA_HITSTOP := 0.03
 
 var trauma := 0.0
 ## Deslocamento rápido da câmera na direção do impacto (decai sozinho).
@@ -12,6 +13,13 @@ var escala_base := 1.0
 
 ## Hitstop restante, em segundos de tempo NÃO escalado (determinístico com --fixed-fps).
 var _hitstop_restante := 0.0
+## Hitstop pedido desde o último `_process` (aplicado lá, nunca no meio do quadro).
+var _hitstop_pedido := 0.0
+## Escala que este nó gravou por último em Engine.time_scale. Só Efeitos grava a escala, e
+## só dentro de `_process`: o motor lê a escala no início de cada iteração, então o `delta`
+## de um quadro foi escalado exatamente por este valor. (Medir com a escala atual erra no
+## quadro em que um golpe muda a escala durante a física — e cancelava todo hitstop.)
+var _escala_aplicada := 1.0
 var _particulas: SistemaParticulas
 var _manchas: ManchasChao
 var _numeros: NumerosDano
@@ -38,23 +46,25 @@ func limpar_registro() -> void:
 	chute = Vector2.ZERO
 	escala_base = 1.0
 	_hitstop_restante = 0.0
+	_hitstop_pedido = 0.0
+	_escala_aplicada = 1.0
 	Engine.time_scale = 1.0
 
 
 func _process(delta: float) -> void:
-	# `delta` vem escalado por Engine.time_scale; desfazendo a escala obtemos o tempo do
-	# jogo "sem câmera lenta". Com --fixed-fps (vídeos e testes) isso é determinístico.
-	var escala := Engine.time_scale
-	var real := minf(delta / escala if escala > 0.0001 else delta, 0.1)
+	# `delta` vem escalado pela escala aplicada no quadro anterior; desfazendo-a obtemos o
+	# tempo "sem câmera lenta". Com --fixed-fps (vídeos e testes) isso é determinístico.
+	var real := minf(delta / _escala_aplicada, 0.1)
 	trauma = maxf(trauma - TRAUMA_DECAIMENTO * real, 0.0)
 	chute = chute.lerp(Vector2.ZERO, minf(1.0, 18.0 * real))
-	if _hitstop_restante > 0.0:
-		_hitstop_restante -= real
-		if _hitstop_restante <= 0.0:
-			_hitstop_restante = 0.0
-			Engine.time_scale = escala_base
-	elif not is_equal_approx(Engine.time_scale, escala_base):
-		Engine.time_scale = escala_base
+	_hitstop_restante = maxf(_hitstop_restante - real, 0.0)
+	if _hitstop_pedido > 0.0:
+		_hitstop_restante = maxf(_hitstop_restante, _hitstop_pedido)
+		_hitstop_pedido = 0.0
+	var alvo := ESCALA_HITSTOP if _hitstop_restante > 0.0 else escala_base
+	if not is_equal_approx(_escala_aplicada, alvo) or not is_equal_approx(Engine.time_scale, alvo):
+		_escala_aplicada = alvo
+		Engine.time_scale = alvo
 
 
 ## Congela a ação por um instante para dar peso ao impacto.
@@ -62,18 +72,16 @@ func _process(delta: float) -> void:
 func hitstop(duracao: float) -> void:
 	if duracao <= 0.0:
 		return
-	_hitstop_restante = maxf(_hitstop_restante, duracao)
-	Engine.time_scale = 0.03
+	_hitstop_pedido = maxf(_hitstop_pedido, duracao)
 
 
 func em_hitstop() -> bool:
-	return _hitstop_restante > 0.0
+	return _hitstop_restante > 0.0 or _hitstop_pedido > 0.0
 
 
+## Escala fora do hitstop (câmera lenta da morte etc.); vale a partir do próximo quadro.
 func definir_escala_base(escala: float) -> void:
-	escala_base = escala
-	if _hitstop_restante <= 0.0:
-		Engine.time_scale = escala
+	escala_base = maxf(escala, 0.01)
 
 
 func tremer(quantidade: float, direcao: Vector2 = Vector2.ZERO) -> void:

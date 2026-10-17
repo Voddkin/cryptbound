@@ -81,3 +81,23 @@ func teste_faces_de_parede_em_vista_tres_quartos() -> void:
 	afirmar_igual(ConstrutorSala.tipo_face(def, Vector2i(1, 0)), ConstrutorSala.SEM_FACE, "o resto é topo")
 	afirmar_igual(ConstrutorSala.tipo_face(def, Vector2i(2, 4)), ConstrutorSala.FACE_UNICA, "parede de um tile com chão acima e abaixo é face única")
 	afirmar_igual(ConstrutorSala.tipo_face(def, Vector2i(0, 6)), ConstrutorSala.SEM_FACE, "parede sul é topo")
+
+
+func teste_quem_encosta_em_objeto_baixo_continua_visivel_e_alcancavel() -> void:
+	# Caixão 't' em (6,5): a colisão física ocupa só parte da célula, então quem encosta
+	# nele por cima fica com os pés numa célula sólida da grade.
+	var def := DefinicaoSala.de_texto("tipo: inicio\n---\n############\n############\n############\n#..........#\n#..........#\n#.....t....#\n#.@........#\n#..........#\n############\n")
+	afirmar(def.valida(), "sala de teste válida: %s" % "; ".join(def.erros))
+	var sala := ConstrutorSala.construir(def, 3)
+	add_child(sala)
+	var no_caixao := sala.centro_celula(Vector2i(6, 5)) + Vector2(0, -5)
+	afirmar(not sala.andavel(sala.celula_de(no_caixao)), "os pés estão numa célula sólida")
+	var longe := sala.centro_celula(Vector2i(9, 7))
+	afirmar(sala.visao_livre(longe, no_caixao), "quem encosta no caixão continua visível")
+	afirmar(sala.visao_livre(no_caixao + Vector2(0, -3), longe + Vector2(0, -3)), "e enxerga a sala")
+	afirmar(sala.caminho(longe, no_caixao).size() > 1, "existe caminho até quem encosta no caixão")
+	afirmar(sala.caminho(no_caixao, longe).size() > 1, "e de quem encosta no caixão até o resto da sala")
+	var atras := sala.centro_celula(Vector2i(6, 3))
+	var frente := sala.centro_celula(Vector2i(6, 7))
+	afirmar(not sala.visao_livre(atras, frente), "o caixão continua bloqueando a visão de quem passa por ele")
+	sala.queue_free()

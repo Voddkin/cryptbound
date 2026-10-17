@@ -45,6 +45,12 @@ func _ready() -> void:
 	add_child(caixa)
 	area_entered.connect(_ao_tocar_area)
 	body_entered.connect(_ao_tocar_corpo)
+	Eventos.sala_limpa.connect(_ao_purificar_sala)
+
+
+## Sala purificada: nenhum lamento sobrevive a ela.
+func _ao_purificar_sala(_sala: Node) -> void:
+	_desfazer.call_deferred()
 
 
 func _physics_process(delta: float) -> void:

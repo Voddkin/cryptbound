@@ -39,7 +39,7 @@ func _ready() -> void:
 	_botao("pausa.menu", func() -> void:
 		get_tree().paused = false
 		Jogo.ir_para_titulo())
-	_botao("pausa.sair", func() -> void: get_tree().quit())
+	_botao("pausa.sair", func() -> void: Jogo.sair())
 	_painel_reliquias = PanelContainer.new()
 	var painel := _painel_reliquias
 	painel.position = Vector2(300, 60)

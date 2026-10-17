@@ -94,7 +94,7 @@ func _montar_interface() -> void:
 		_menu.visible = false
 		_creditos.visible = true
 		_creditos.get_child(0).get_child(1).grab_focus())
-	_botao("titulo.sair", func() -> void: get_tree().quit())
+	_botao("titulo.sair", func() -> void: Jogo.sair())
 
 	var rodape := Tema.rotulo(Textos.t("titulo.versao", {"v": ProjectSettings.get_setting("application/config/version")}), Fontes.pequena(), Fontes.TAMANHO_PEQUENA, Tema.COR_TEXTO_FRACO)
 	rodape.position = Vector2(8, 360 - 16)

@@ -3,7 +3,8 @@ extends Inimigo
 ## Cadáver seco movido por raízes. Avança devagar e dá uma investida telegrafada
 ## (tremor + olho brilhando por 0,55 s). Durante a preparação e a investida, só golpes
 ## FORTES (pancada do combo, golpe pesado, badalo) o interrompem; depois da investida fica
-## exposto por um bom tempo. Perto de uma Lamuriante, fica mais rápido.
+## exposto por um bom tempo. Perto de uma Lamuriante, anda e volta a atacar mais rápido —
+## mas o aviso da investida nunca encurta (a leitura do perigo é sagrada).
 
 enum Acao { PERSEGUIR, PREPARAR, INVESTIR, RECUPERAR }
 
@@ -78,7 +79,8 @@ func _pensar(delta: float) -> void:
 				mover_para(alvo.global_position, dados.velocidade * ritmo, delta)
 		Acao.PREPARAR:
 			velocidade_desejada = Vector2.ZERO
-			_tempo -= delta * ritmo
+			corpo.speed_scale = 1.0
+			_tempo -= delta
 			# A mira acompanha a Coveira e trava pouco antes do bote: esquivar tarde funciona.
 			if _tempo > TRAVA_MIRA and is_instance_valid(alvo):
 				_direcao_ataque = (alvo.global_position - global_position).normalized()

@@ -24,9 +24,13 @@ var tempo := 0.0
 ## Golpe que derrubou a Coveira (para a tela de morte).
 var causa_morte: DanoInfo
 
+var _saindo := false
+
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# Fechar a janela passa por `sair()` (registra a descida e silencia o áudio).
+	get_tree().auto_accept_quit = false
 	Eventos.inimigo_morreu.connect(func(_i: Node2D, _info: DanoInfo) -> void: abates += 1)
 	Eventos.sala_limpa.connect(func(_s: Node) -> void: salas_limpas += 1)
 
@@ -34,6 +38,22 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if em_descida and not get_tree().paused:
 		tempo += delta
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		sair()
+
+
+## Fecha o jogo: registra a descida em andamento, silencia o áudio e sai um instante depois.
+func sair() -> void:
+	if _saindo:
+		return
+	_saindo = true
+	encerrar_descida_sem_morte()
+	Audio.silenciar_tudo()
+	await get_tree().create_timer(0.1, true, false, true).timeout
+	get_tree().quit()
 
 
 ## Reinicia o estado para uma nova descida. `nova_semente` < 0 sorteia uma semente.

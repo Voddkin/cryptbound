@@ -101,6 +101,9 @@ func teste_morte_mostra_causa_e_registra() -> void:
 	if not recebido.is_empty():
 		afirmar_igual(recebido[0].fonte_nome, "Ressequido", "a causa da morte é conhecida")
 	afirmar_igual(int(Salvamento.dados.get("mortes", 0)), mortes_antes + 1, "morte registrada no progresso")
+	# A escala volta no quadro seguinte (Efeitos só grava a escala no próprio _process).
+	await get_tree().process_frame
+	await get_tree().process_frame
 	afirmar(is_equal_approx(Engine.time_scale, 1.0), "a câmera lenta terminou")
 
 

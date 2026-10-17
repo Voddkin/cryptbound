@@ -301,7 +301,11 @@ func morrer(info: DanoInfo) -> void:
 	if caixa_golpe:
 		caixa_golpe.desativar()
 	caixa_dano.set_deferred(&"monitorable", false)
-	_forma_corpo.set_deferred(&"disabled", true)
+	# O cadáver deixa de bloquear alguém, mas continua batendo no cenário (o empurrão do
+	# golpe final não o leva para dentro de paredes).
+	set_deferred(&"collision_layer", 0)
+	set_deferred(&"collision_mask", CAMADA_MUNDO)
+	_apagar_luzes()
 	corpo.play(&"morte")
 	Audio.tocar(dados.som_morte, global_position)
 	Efeitos.tremer(0.2, info.direcao)
@@ -309,6 +313,15 @@ func morrer(info: DanoInfo) -> void:
 	Eventos.inimigo_morreu.emit(self, info)
 	morreu.emit(self)
 	corpo.animation_finished.connect(_virar_resto, CONNECT_ONE_SHOT)
+
+
+## Olhos, brilhos de aviso e velas se apagam com a morte (não ficam flutuando nos restos).
+func _apagar_luzes() -> void:
+	for luz in find_children("*", "PointLight2D", true, false):
+		luz.set_process(false)
+		var t := create_tween()
+		t.tween_property(luz, ^"energy", 0.0, 0.35)
+		t.tween_callback(luz.hide)
 
 
 func _soltar_ossos() -> void:

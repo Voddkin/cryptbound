@@ -148,6 +148,26 @@ func tocar_musica(id: StringName) -> void:
 func parar_musica(duracao: float = 1.0) -> void:
 	_musica_atual = &""
 	_transicionar(SILENCIO_DB, SILENCIO_DB, duracao)
+	# Depois do esmaecimento, para de fato (uma nova música mata este tween antes).
+	_tween_musica.chain().tween_callback(_parar_tocadores_musica)
+
+
+func _parar_tocadores_musica() -> void:
+	_camada_exploracao.stop()
+	_camada_combate.stop()
+
+
+## Para todo som (ao fechar o jogo). A reprodução só é liberada pelo servidor de áudio
+## alguns quadros depois — quem fecha o jogo espera um instante antes de sair.
+func silenciar_tudo() -> void:
+	_musica_atual = &""
+	if _tween_musica:
+		_tween_musica.kill()
+	_parar_tocadores_musica()
+	for p in _pool:
+		p.stop()
+	for u in _pool_ui:
+		u.stop()
 
 
 func definir_combate(ativo: bool) -> void:
