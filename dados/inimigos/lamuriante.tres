@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="InimigoDados" format=3]
+
+[ext_resource type="Script" path="res://jogo/entidades/inimigos/inimigo_dados.gd" id="1_dados"]
+
+[resource]
+script = ExtResource("1_dados")
+id = &"lamuriante"
+nome = "Lamuriante"
+ataque = "Lamúria"
+dica = "Enquanto a Lamuriante canta, os Ressequidos ligados a ela pelo fio de luz ficam mais rápidos. Derrube-a primeiro; pilares e paredes bloqueiam a Lamúria."
+vida = 24.0
+velocidade = 30.0
+velas_de_dano = 1
+ossos_min = 3
+ossos_max = 5
+material = &"cera"
+som_acerto = &"acerto_cera"
+som_morte = &"lamuriante_morte"

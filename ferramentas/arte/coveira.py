@@ -115,10 +115,8 @@ def quadro_frente(costas=False, bob=0, pernas=(0, 0), balanco=0, olhos_fechados=
     q = Image.new("RGBA", (Q, Q))
     tronco = _tronco(COSTAS if costas else FRENTE)
     if olhos_fechados and not costas:
-        tronco = trocar_cores(tronco.crop((0, 8, 16, 9)), OLHOS_FECHADOS)
-        base = _tronco(FRENTE)
-        base.paste(tronco, (0, 8))
-        tronco = base
+        for olho in ((6, 8), (9, 8)):
+            tronco.putpixel(olho, rgba("s"))
     y0 = 1 + bob + agachar
     q.alpha_composite(tronco, (OX, y0))
     corpo = Image.new("RGBA", (Q, Q))
@@ -157,6 +155,17 @@ def quadro_lado(bob=0, passo=0.0, elev=(0, 0), olhos_fechados=False, agachar=0, 
     return contornar(q)
 
 
+def _encaixar(img):
+    """Recorta o conteúdo e o encaixa no quadro com a base em y=23 e centralizado."""
+    caixa = img.getbbox()
+    conteudo = img.crop(caixa)
+    if conteudo.width > Q or conteudo.height > Q:
+        raise ValueError(f"pose não cabe no quadro: {conteudo.size}")
+    q = Image.new("RGBA", (Q, Q))
+    q.alpha_composite(conteudo, ((Q - conteudo.width) // 2, Q - conteudo.height))
+    return q
+
+
 def gerar():
     anims = {}
     # Parado: respiração (tronco desce 1 px nos quadros 2–3)
@@ -177,9 +186,8 @@ def gerar():
     # Morte: de joelhos, tomba para a frente, fica no chão; o chapéu rola.
     ajoelhada = quadro_frente(False, 0, (3, 3), 0, olhos_fechados=True, agachar=3)
     curvada = quadro_frente(False, 0, (3, 3), 0, olhos_fechados=True, agachar=4)
-    tombando = curvada.rotate(-35, resample=Image.Resampling.NEAREST, center=(12, 22))
-    caida = curvada.rotate(-90, resample=Image.Resampling.NEAREST, center=(12, 20))
-    caida = caida.transform(caida.size, Image.Transform.AFFINE, (1, 0, 0, 0, 1, -3), resample=Image.Resampling.NEAREST)
+    tombando = _encaixar(curvada.rotate(-35, resample=Image.Resampling.NEAREST, expand=True))
+    caida = _encaixar(curvada.rotate(-90, resample=Image.Resampling.NEAREST, expand=True))
     chapeu = imagem("""
         ..0000..
         .0HjjH0.
@@ -189,7 +197,8 @@ def gerar():
         .000000.
         """)
     final = caida.copy()
-    final.alpha_composite(chapeu, (15, 15))
+    caixa = caida.getbbox()
+    final.alpha_composite(chapeu, (min(caixa[2] - 2, Q - chapeu.width), Q - chapeu.height))
     anims["morte"] = [anims["dano_baixo"][0], ajoelhada, curvada, tombando, caida, final]
 
     fps = {k: 6 for k in anims if k.startswith("parado")}

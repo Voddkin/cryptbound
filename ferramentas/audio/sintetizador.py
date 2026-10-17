@@ -132,7 +132,8 @@ def sino(freq, duracao, brilho=1.0, rachado=0.0, semente=0):
         zumbido = ruido(duracao, semente + 1) * np.exp(-t / 0.06) * rachado
         s += filtro(zumbido, passa_baixa=4000, passa_alta=800) * 0.8
     ataque = np.clip(t / 0.002, 0, 1)
-    return s * ataque
+    soltura = np.clip((duracao - t) / 0.04, 0, 1)  # termina em zero: sem estalo no corte
+    return s * ataque * soltura
 
 
 def resposta_reverb(duracao=2.5, brilho=3000, semente=7):
@@ -151,6 +152,7 @@ def reverb(sinal, molhado=0.3, duracao=2.5, brilho=3000, circular=False):
         ir_n[: min(len(ir), n)] = ir[: n]
         molhado_sinal = np.fft.irfft(np.fft.rfft(sinal) * np.fft.rfft(ir_n), n)
         return sinal * (1 - molhado * 0.5) + molhado_sinal * molhado
+    sinal = suavizar_bordas(sinal, 0.0, 0.02)  # o seco precisa terminar em zero antes da cauda
     n = len(sinal) + len(ir) - 1
     tamanho = 1 << (n - 1).bit_length()
     molhado_sinal = np.fft.irfft(np.fft.rfft(sinal, tamanho) * np.fft.rfft(ir, tamanho), tamanho)[:n]

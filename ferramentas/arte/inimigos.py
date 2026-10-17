@@ -139,8 +139,11 @@ def gerar_ressequido():
              "dano": dano, "morte": morte}
     fps = {"andar": 6, "preparar": 8, "investir": 12, "recuperar": 5, "dano": 10, "morte": 10}
     loops = {"andar": True, "preparar": True, "investir": False, "recuperar": True, "dano": False, "morte": False}
+    # Pontos derivados das mesmas constantes do desenho (tronco em (4, 2), olho na coluna 10, linha 5).
+    olho = [4 + 10, 2 + 5]
+    garras_investida = [4 + 3 + OMBRO[0] + 8, 2 + 1 + OMBRO[1] + 2]
     return salvar_sprite("ressequido", "personagens", anims, (24, 24), (12, 23), fps, loops,
-                         {"olho": [19, 10], "garras": [20, 18]})
+                         {"olho": olho, "garras_investida": garras_investida})
 
 
 # --- Lamuriante ----------------------------------------------------------------

@@ -1,0 +1,93 @@
+[gd_resource type="Resource" script_class="ArmaDados" format=3]
+
+[ext_resource type="Script" path="res://jogo/itens/arma_dados.gd" id="1_arma"]
+[ext_resource type="Script" path="res://jogo/itens/golpe_dados.gd" id="2_golpe"]
+[ext_resource type="Texture2D" path="res://arte/armas/pa.png" id="3_sprite"]
+
+[sub_resource type="Resource" id="golpe_varrida"]
+script = ExtResource("2_golpe")
+nome = "Varrida"
+dano = 10.0
+arco_graus = 120.0
+alcance = 28.0
+antecipacao = 0.05
+ativo = 0.07
+recuperacao = 0.16
+janela_cancelamento = 0.4
+avanco = 70.0
+empurrao = 110.0
+hitstop = 0.045
+tremor = 0.12
+interrupcao = 1
+sentido_giro = 1
+tags = Array[StringName]([&"leve"])
+som = &"pa_varrida"
+
+[sub_resource type="Resource" id="golpe_contra"]
+script = ExtResource("2_golpe")
+nome = "Contra-varrida"
+dano = 10.0
+arco_graus = 120.0
+alcance = 28.0
+antecipacao = 0.05
+ativo = 0.07
+recuperacao = 0.18
+janela_cancelamento = 0.4
+avanco = 70.0
+empurrao = 110.0
+hitstop = 0.045
+tremor = 0.12
+interrupcao = 1
+sentido_giro = -1
+tags = Array[StringName]([&"leve"])
+som = &"pa_varrida"
+
+[sub_resource type="Resource" id="golpe_pancada"]
+script = ExtResource("2_golpe")
+nome = "Pancada"
+dano = 18.0
+arco_graus = 70.0
+alcance = 32.0
+antecipacao = 0.12
+ativo = 0.08
+recuperacao = 0.32
+janela_cancelamento = 0.5
+avanco = 140.0
+empurrao = 260.0
+hitstop = 0.09
+tremor = 0.3
+interrupcao = 2
+sentido_giro = 0
+tags = Array[StringName]([&"leve", &"golpe_final"])
+som = &"pa_pancada"
+
+[sub_resource type="Resource" id="golpe_cavada"]
+script = ExtResource("2_golpe")
+nome = "Cavada"
+dano = 28.0
+arco_graus = 160.0
+alcance = 34.0
+antecipacao = 0.02
+ativo = 0.1
+recuperacao = 0.38
+janela_cancelamento = 0.55
+avanco = 40.0
+empurrao = 300.0
+hitstop = 0.12
+tremor = 0.45
+interrupcao = 2
+sentido_giro = 1
+tags = Array[StringName]([&"pesado"])
+som = &"pa_pancada"
+
+[resource]
+script = ExtResource("1_arma")
+id = &"pa_de_coveiro"
+nome = "Pá de Coveiro"
+descricao = "Ferramenta de ofício. Três golpes em sequência; o último é uma pancada que empurra e interrompe. Segure para uma cavada que arremessa tudo ao redor."
+sprite = ExtResource("3_sprite")
+empunhadura = Vector2(4, 3)
+combo = Array[ExtResource("2_golpe")]([SubResource("golpe_varrida"), SubResource("golpe_contra"), SubResource("golpe_pancada")])
+pesado = SubResource("golpe_cavada")
+carga_pesado = 0.45
+tempo_combo = 0.45

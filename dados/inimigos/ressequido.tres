@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="InimigoDados" format=3]
+
+[ext_resource type="Script" path="res://jogo/entidades/inimigos/inimigo_dados.gd" id="1_dados"]
+
+[resource]
+script = ExtResource("1_dados")
+id = &"ressequido"
+nome = "Ressequido"
+ataque = "Investida"
+dica = "A investida do Ressequido é anunciada por um tremor e um brilho no olho. Esquive para o lado e golpeie enquanto ele se recompõe."
+vida = 30.0
+velocidade = 38.0
+velas_de_dano = 1
+ossos_min = 2
+ossos_max = 4
+material = &"osso"
+som_acerto = &"acerto_osso"
+som_morte = &"ressequido_morte"

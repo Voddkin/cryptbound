@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="ItemDados" format=3]
+
+[ext_resource type="Script" path="res://jogo/itens/item_dados.gd" id="1_item"]
+[ext_resource type="Script" path="res://jogo/itens/efeitos/efeito_velas.gd" id="2_efeito"]
+[ext_resource type="Script" path="res://jogo/itens/efeito_dados.gd" id="4_base"]
+[ext_resource type="Texture2D" path="res://arte/itens/vela_perene.png" id="3_icone"]
+
+[sub_resource type="Resource" id="mais_uma_vela"]
+script = ExtResource("2_efeito")
+gatilho = &"ao_adquirir"
+aumento_maximo = 1
+cura = 1
+
+[resource]
+script = ExtResource("1_item")
+id = &"vela_perene"
+nome = "Vela Perene"
+descricao = "+1 vela máxima, e ela já chega acesa."
+inscricao = "Arde frio. Ninguém sabe o que ela queima."
+raridade = 0
+icone = ExtResource("3_icone")
+efeitos = Array[ExtResource("4_base")]([SubResource("mais_uma_vela")])
+tags = Array[StringName]([&"vida"])

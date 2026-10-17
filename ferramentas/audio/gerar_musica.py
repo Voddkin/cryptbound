@@ -81,8 +81,9 @@ def camadas_catacumbas():
             n_ = PENTATONICA[rng.integers(0, len(PENTATONICA))]
             s = sino(nota(n_), 3.0, brilho=0.5, semente=b) * 0.22
             pan = rng.uniform(0.25, 0.75)
-            colocar(exp_e, s * (1 - pan) * 2, b * batida + (batida / 2 if rng.random() < 0.3 else 0))
-            colocar(exp_d, s * pan * 2, b * batida + (batida / 2 if rng.random() < 0.3 else 0))
+            atraso = batida / 2 if rng.random() < 0.3 else 0
+            colocar(exp_e, s * (1 - pan) * 2, b * batida + atraso)
+            colocar(exp_d, s * pan * 2, b * batida + atraso)
     # Gotas d'água
     momento = 1.0
     while momento < dur - 0.5:

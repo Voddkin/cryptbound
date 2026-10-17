@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ItemDados" format=3]
+
+[ext_resource type="Script" path="res://jogo/itens/item_dados.gd" id="1_item"]
+[ext_resource type="Script" path="res://jogo/itens/efeitos/efeito_onda.gd" id="2_efeito"]
+[ext_resource type="Script" path="res://jogo/itens/efeito_dados.gd" id="4_base"]
+[ext_resource type="Texture2D" path="res://arte/itens/sino_rachado.png" id="3_icone"]
+
+[sub_resource type="Resource" id="badalo_na_esquiva"]
+script = ExtResource("2_efeito")
+gatilho = &"ao_esquivar"
+recarga = 1.2
+raio = 52.0
+dano = 0.0
+empurrao = 240.0
+atordoamento = 0.7
+estilo = &"badalo"
+
+[resource]
+script = ExtResource("1_item")
+id = &"sino_rachado"
+nome = "Sino Rachado"
+descricao = "Ao esquivar, solta um badalo que empurra e atordoa por um instante os inimigos próximos (recarga de 1,2 s)."
+inscricao = "Rachou na noite em que tocou sozinho."
+raridade = 2
+icone = ExtResource("3_icone")
+efeitos = Array[ExtResource("4_base")]([SubResource("badalo_na_esquiva")])
+tags = Array[StringName]([&"esquiva", &"controle"])

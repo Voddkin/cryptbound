@@ -27,32 +27,42 @@ CARACTERES = (
 )
 
 
+SUPER = 8
+
+
+def _rasterizar(fonte_grande, ch):
+    """Renderiza o glifo em 8× e amostra o centro de cada bloco de 8×8 (sem efeito de hinting).
+    Devolve (imagem L, esquerda, topo) em pixels da grade nativa, ou (None, 0, 0)."""
+    esquerda, topo, direita, base = fonte_grande.getbbox(ch)
+    if direita <= esquerda or base <= topo:
+        return None, 0, 0
+    x0, y0 = esquerda // SUPER - 1, topo // SUPER - 1
+    x1, y1 = -(-direita // SUPER) + 1, -(-base // SUPER) + 1
+    grande = Image.new("L", ((x1 - x0) * SUPER, (y1 - y0) * SUPER), 0)
+    ImageDraw.Draw(grande).text((-x0 * SUPER, -y0 * SUPER), ch, font=fonte_grande, fill=255)
+    w, h = x1 - x0, y1 - y0
+    pequena = Image.new("L", (w, h), 0)
+    px = grande.load()
+    for y in range(h):
+        for x in range(w):
+            if px[x * SUPER + SUPER // 2, y * SUPER + SUPER // 2] > 127:
+                pequena.putpixel((x, y), 255)
+    caixa = pequena.getbbox()
+    if not caixa:
+        return None, 0, 0
+    return pequena.crop(caixa), x0 + caixa[0], y0 + caixa[1]
+
+
 def gerar(arquivo: str, nome: str, tamanho: float, entrelinha: int) -> None:
     fonte = ImageFont.truetype(str(ORIGEM / arquivo), tamanho)
+    fonte_grande = ImageFont.truetype(str(ORIGEM / arquivo), tamanho * SUPER)
     ascendente, descendente = fonte.getmetrics()
     glifos = []
     for ch in CARACTERES:
-        try:
-            esquerda, topo, direita, base = fonte.getbbox(ch)
-        except Exception:
-            continue
-        avanco = round(fonte.getlength(ch))
-        largura, altura = max(direita - esquerda, 0), max(base - topo, 0)
-        img = None
-        if largura > 0 and altura > 0:
-            img = Image.new("L", (largura + 2, altura + 2), 0)
-            d = ImageDraw.Draw(img)
-            d.fontmode = "1"
-            d.text((1 - esquerda, 1 - topo), ch, font=fonte, fill=255)
-            caixa = img.getbbox()
-            if caixa:
-                img = img.crop(caixa)
-                esquerda += caixa[0] - 1
-                topo += caixa[1] - 1
-                largura, altura = img.size
-            else:
-                img = None
-        glifos.append((ch, img, esquerda, topo, largura if img else 0, altura if img else 0, avanco))
+        avanco = round(fonte_grande.getlength(ch) / SUPER)
+        img, esquerda, topo = _rasterizar(fonte_grande, ch)
+        largura, altura = img.size if img else (0, 0)
+        glifos.append((ch, img, esquerda, topo, largura, altura, avanco))
 
     # Empacota em linhas numa folha de 256 px de largura.
     largura_folha, x, y, linha = 256, 1, 1, 0

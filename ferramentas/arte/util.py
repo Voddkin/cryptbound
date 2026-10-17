@@ -13,7 +13,11 @@ ARTE = RAIZ / "arte"
 
 def grade(texto: str) -> list[str]:
     """Converte um bloco de texto em linhas, removendo indentação e linhas vazias das pontas."""
-    linhas = [l.rstrip() for l in texto.strip("\n").split("\n")]
+    linhas = [l.rstrip() for l in texto.split("\n")]
+    while linhas and not linhas[0].strip():
+        linhas.pop(0)
+    while linhas and not linhas[-1].strip():
+        linhas.pop()
     recuo = min((len(l) - len(l.lstrip())) for l in linhas if l.strip())
     linhas = [l[recuo:] for l in linhas]
     largura = max(len(l) for l in linhas)
@@ -64,6 +68,7 @@ def contornar(img: Image.Image, caractere: str = "0", diagonais: bool = False) -
     out = img.copy()
     dst = out.load()
     c = rgba(caractere)
+    cor_contorno = c[:3]
     vizinhos = [(1, 0), (-1, 0), (0, 1), (0, -1)]
     if diagonais:
         vizinhos += [(1, 1), (1, -1), (-1, 1), (-1, -1)]
@@ -73,7 +78,7 @@ def contornar(img: Image.Image, caractere: str = "0", diagonais: bool = False) -
                 continue
             for dx, dy in vizinhos:
                 nx, ny = x + dx, y + dy
-                if 0 <= nx < w and 0 <= ny < h and src[nx, ny][3] != 0:
+                if 0 <= nx < w and 0 <= ny < h and src[nx, ny][3] != 0 and src[nx, ny][:3] != cor_contorno:
                     dst[x, y] = c
                     break
     return out
@@ -118,6 +123,9 @@ def salvar_sprite(nome: str, pasta: str, quadros_por_anim: dict, tamanho: tuple,
             "fps": (fps or {}).get(anim, 8),
             "loop": (loops or {}).get(anim, True),
         }
+    if origem[1] is None:
+        base = max((q.getbbox() or (0, 0, 0, 1))[3] - 1 for q in todos)
+        origem = (origem[0], base)
     destino = ARTE / pasta
     destino.mkdir(parents=True, exist_ok=True)
     colunas = min(colunas, len(todos))

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="ItemDados" format=3]
+
+[ext_resource type="Script" path="res://jogo/itens/item_dados.gd" id="1_item"]
+[ext_resource type="Script" path="res://jogo/itens/efeitos/efeito_aplicar_estado.gd" id="2_efeito"]
+[ext_resource type="Script" path="res://jogo/itens/efeito_dados.gd" id="4_base"]
+[ext_resource type="Texture2D" path="res://arte/itens/presa.png" id="3_icone"]
+
+[sub_resource type="Resource" id="sangria_no_golpe_final"]
+script = ExtResource("2_efeito")
+gatilho = &"ao_acertar"
+requer_tags = Array[StringName]([&"golpe_final"])
+estado = &"sangria"
+potencia = 3.0
+duracao = 4.0
+acumulos = 1
+
+[resource]
+script = ExtResource("1_item")
+id = &"presa_cao_de_cova"
+nome = "Presa de Cão-de-Cova"
+descricao = "O golpe final do combo aplica Sangria: o alvo perde 3 de vida a cada passo que dá (acumula até 3 vezes). Ser empurrado também conta."
+inscricao = "Os cães-de-cova farejavam os túmulos rasos. Esta presa ainda lembra o gosto."
+raridade = 1
+icone = ExtResource("3_icone")
+efeitos = Array[ExtResource("4_base")]([SubResource("sangria_no_golpe_final")])
+tags = Array[StringName]([&"sangria"])

@@ -239,10 +239,6 @@ def face_baixo(variante):
         for (x, y) in [(9, 4), (10, 4), (10, 5), (11, 5), (9, 6), (12, 4), (11, 4)]:
             _px(img, x, y, "5")
         _px(img, 10, 6, "4")
-    elif variante == 2:                     # raiz saindo pelo rodapé
-        for (x, y) in [(3, 7), (4, 8), (4, 9), (5, 10), (5, 11), (6, 12), (6, 13), (7, 14)]:
-            _px(img, x, y, "h"); _px(img, x + 1, y, "j")
-        _px(img, 4, 9, "q")
     for x in range(T):                      # rodapé
         _px(img, x, 11, "6")
         _px(img, x, 12, "5")
@@ -251,6 +247,10 @@ def face_baixo(variante):
         _px(img, x, 15, "1")
     for x in range(0, T, 4):
         _px(img, x, 12, "4")
+    if variante == 2:                       # raiz saindo pelo rodapé (por cima dele)
+        for (x, y) in [(3, 7), (4, 8), (4, 9), (5, 10), (5, 11), (6, 12), (6, 13), (7, 14), (7, 15)]:
+            _px(img, x, y, "h"); _px(img, x + 1, y, "j")
+        _px(img, 4, 9, "q"); _px(img, 6, 13, "q")
     return img
 
 

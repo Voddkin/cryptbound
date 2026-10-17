@@ -65,12 +65,12 @@
  },
  "pontos": {
   "olho": [
-   19,
-   10
+   14,
+   7
   ],
-  "garras": [
-   20,
-   18
+  "garras_investida": [
+   22,
+   13
   ]
  }
 }

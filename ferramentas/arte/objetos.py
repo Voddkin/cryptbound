@@ -75,7 +75,7 @@ def gerar_velas():
             .xxxx.
             """), (1, 4))
         quadros.append(contornar(img))
-    salvar_sprite("vela", "props", {"acesa": quadros}, (8, 14), (4, 13), {"acesa": 8}, {"acesa": True},
+    salvar_sprite("vela", "props", {"acesa": quadros}, (8, 14), (4, None), {"acesa": 8}, {"acesa": True},
                   {"chama": [4, 2]})
     # Grupo de velas de alturas diferentes
     quadros = []
@@ -96,7 +96,7 @@ def gerar_velas():
             ..xxxxxxxxxxxx..
             """), (0, 5))
         quadros.append(contornar(img))
-    salvar_sprite("velas", "props", {"acesas": quadros}, (16, 16), (8, 15), {"acesas": 7}, {"acesas": True},
+    salvar_sprite("velas", "props", {"acesas": quadros}, (16, 16), (8, None), {"acesas": 7}, {"acesas": True},
                   {"chama": [8, 4]})
     # Candelabro de ferro (bloqueia)
     quadros = []
@@ -301,8 +301,8 @@ def gerar_porta_raizes():
             ym = y0 + (y1 - y0) * p
             d.line([(x0, y0), (xm, ym)], fill=rgba("h"), width=3)
             d.line([(x0, y0), (xm, ym - 1)], fill=rgba("j"), width=1)
-            if p > 0.6:
-                img.putpixel((int(xm) % 32, int(ym) % 20), rgba("q"))
+            if p > 0.6 and 0 <= int(xm) < 32 and 0 <= int(ym) < 20:
+                img.putpixel((int(xm), int(ym)), rgba("q"))
         quadros.append(contornar(img))
     salvar_sprite("porta_raizes", "props", {"crescer": quadros, "fechada": [quadros[-1]]}, (32, 20), (16, 19),
                   {"crescer": 14, "fechada": 1}, {"crescer": False, "fechada": False})
