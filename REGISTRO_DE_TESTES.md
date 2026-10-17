@@ -123,6 +123,7 @@ pessoa**; só mostram que a arena é o pico de pressão da profundidade.
 | Arte provisória (tiles, Coveira, inimigos, objetos, HUD) | Folhas renderizadas ampliadas e inspecionadas | Problemas encontrados e corrigidos: Ressequido com silhueta de elefante, chamas em cruz, "rosto de robô" no altar, piso ruidoso, topo das paredes escuro demais |
 | 10 telas (título, créditos, antecâmara com dicas, painel de relíquia, pausa, configurações, combate com nomes de estados, relicário vazio, Coveira tombando, tela de morte) | `testes/captura/capturar_telas.tscn` sob Xvfb | 5 problemas corrigidos (painel sobre as dicas, configurações sobre relíquias, estatísticas da morte, menu do título, créditos passando da tela) |
 | Ciclo completo jogado pelo robô | Movie Maker (`--write-movie`) sob Xvfb, 30 fps fixos, quadros extraídos com ffmpeg | Entrada → combate → relicário (pega relíquia) → combate → arena (2 ondas) → descida → profundidade 2. Vídeo gravado **antes** da correção do hitstop |
+| **Vídeo final** (100 s, 1280×720, 60 fps, com som, semente 1), gravado depois de todas as correções | `ferramentas/gravar_video.sh 100 entregas/cryptbound-demo.mp4 1`; 10 quadros conferidos | Profundidade 1 inteira (Cripta dos Caixões com as dicas, relicário — o robô leva o Sino Rachado —, Passagem das Raízes, Ossuário Central com Lamúria em voo), descida e começo da profundidade 2 até a Galeria dos Pilares, com a segunda relíquia no HUD. Áudio presente: média −19,4 dB, pico −2,1 dB, sem saturação. Nenhum erro de script na gravação |
 
 ## 5. Áudio
 
