@@ -118,14 +118,14 @@ func encerrar_descida_sem_morte() -> void:
 func ir_para_titulo() -> void:
 	encerrar_descida_sem_morte()
 	get_tree().paused = false
-	Engine.time_scale = 1.0
+	Efeitos.limpar_registro()
 	get_tree().change_scene_to_file(CENA_TITULO)
 
 
 func iniciar_descida() -> void:
 	nova_descida()
 	get_tree().paused = false
-	Engine.time_scale = 1.0
+	Efeitos.limpar_registro()
 	get_tree().change_scene_to_file(CENA_DESCIDA)
 
 

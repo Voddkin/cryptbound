@@ -1,10 +1,14 @@
 extends Node
 ## Progresso persistente entre descidas (JSON versionado em user://).
-## Escrita atômica: grava em .tmp, guarda a versão anterior em .bak e só então substitui.
-## Leitura tolerante: arquivo inválido → tenta .bak → tenta .tmp → recomeça do zero com aviso.
+##
+## Gravação: escreve <arquivo>.tmp, relê e valida; o principal válido vira <arquivo>.bak
+## (por renomeação, nunca por cópia) e o .tmp é renomeado para o principal.
+## Em qualquer instante de uma queda existe pelo menos uma cópia íntegra, e a mais nova
+## é sempre preferida: principal → .tmp → .bak. Arquivo danificado é preservado como
+## .corrompido e o jogador recebe um aviso em pt-BR.
 
 const VERSAO := 1
-const CAMINHO_PADRAO := "user://progresso.json"
+const NOME_ARQUIVO := "progresso.json"
 
 const PADRAO := {
 	"versao": VERSAO,
@@ -17,34 +21,38 @@ const PADRAO := {
 	"reliquias_vistas": [],
 }
 
-var caminho := CAMINHO_PADRAO
+var caminho := ""
 var dados: Dictionary = {}
 ## Mensagem para a interface quando houve recuperação de dados.
 var aviso_pendente := ""
 
 
 func _ready() -> void:
+	caminho = Ambiente.pasta_dados() + NOME_ARQUIVO
 	carregar()
 
 
 func carregar() -> void:
+	aviso_pendente = ""
+	var principal_existe := FileAccess.file_exists(caminho)
 	var lido := _ler_valido(caminho)
-	if lido.is_empty():
-		var tinha_arquivo := FileAccess.file_exists(caminho)
-		for alternativa in [caminho + ".bak", caminho + ".tmp"]:
-			lido = _ler_valido(alternativa)
-			if not lido.is_empty():
-				aviso_pendente = Textos.t("erro.salvamento_corrompido")
-				break
-		if lido.is_empty():
-			if tinha_arquivo:
-				aviso_pendente = Textos.t("erro.salvamento_perdido")
-				_preservar_corrompido()
-			lido = PADRAO.duplicate(true)
+	if not lido.is_empty():
 		dados = lido
-		salvar()
 		return
-	dados = lido
+	var origem := ""
+	for sufixo in [".tmp", ".bak"]:
+		lido = _ler_valido(caminho + sufixo)
+		if not lido.is_empty():
+			origem = sufixo
+			break
+	if principal_existe:
+		_preservar_corrompido()
+		aviso_pendente = Textos.t("erro.salvamento_corrompido") if origem != "" else Textos.t("erro.salvamento_perdido")
+	elif origem == ".bak":
+		# Sem principal e sem .tmp: a gravação mais recente se perdeu, só sobrou o backup.
+		aviso_pendente = Textos.t("erro.salvamento_corrompido")
+	dados = lido if origem != "" else PADRAO.duplicate(true)
+	salvar()
 
 
 ## Lê e valida um arquivo; devolve {} se não existir ou for inválido.
@@ -63,6 +71,7 @@ func _ler_valido(arquivo: String) -> Dictionary:
 
 
 ## Garante tipos e campos; aceita versões antigas preenchendo campos novos com o padrão.
+## Um campo presente com tipo errado invalida o arquivo inteiro.
 func _validar(bruto: Dictionary) -> Dictionary:
 	var versao: Variant = bruto.get("versao")
 	if typeof(versao) not in [TYPE_INT, TYPE_FLOAT] or int(versao) < 1 or int(versao) > VERSAO:
@@ -95,19 +104,24 @@ func _validar(bruto: Dictionary) -> Dictionary:
 
 
 func salvar() -> bool:
-	var texto := JSON.stringify(dados, "\t")
+	Ambiente.garantir_pasta(caminho)
+	var absoluto := ProjectSettings.globalize_path(caminho)
 	var tmp := caminho + ".tmp"
 	var f := FileAccess.open(tmp, FileAccess.WRITE)
 	if f == null:
 		push_warning("Não foi possível gravar o progresso (%s)." % error_string(FileAccess.get_open_error()))
 		return false
-	f.store_string(texto)
+	var escreveu := f.store_string(JSON.stringify(dados, "\t"))
 	f.close()
-	var absoluto := ProjectSettings.globalize_path(caminho)
+	# Disco cheio e afins podem truncar o arquivo sem erro: só promove o que relê íntegro.
+	if not escreveu or _ler_valido(tmp).is_empty():
+		push_warning("A gravação do progresso falhou na verificação; o arquivo anterior foi mantido.")
+		DirAccess.remove_absolute(absoluto + ".tmp")
+		return false
 	if FileAccess.file_exists(caminho) and not _ler_valido(caminho).is_empty():
-		DirAccess.copy_absolute(absoluto, absoluto + ".bak")
-	if FileAccess.file_exists(caminho):
-		DirAccess.remove_absolute(absoluto)
+		var erro_bak := DirAccess.rename_absolute(absoluto, absoluto + ".bak")
+		if erro_bak != OK:
+			push_warning("Não foi possível guardar a cópia de segurança (%s)." % error_string(erro_bak))
 	var erro := DirAccess.rename_absolute(absoluto + ".tmp", absoluto)
 	if erro != OK:
 		push_warning("Não foi possível finalizar a gravação do progresso (%s)." % error_string(erro))

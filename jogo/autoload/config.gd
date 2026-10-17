@@ -4,7 +4,7 @@ extends Node
 
 signal mudou(secao: StringName, chave: StringName, valor: Variant)
 
-const CAMINHO := "user://config.cfg"
+const NOME_ARQUIVO := "config.cfg"
 
 const PADROES := {
 	&"audio": {&"geral": 0.8, &"musica": 0.7, &"efeitos": 0.9},
@@ -12,6 +12,7 @@ const PADROES := {
 	&"jogo": {&"tremor": 1.0, &"numeros_dano": true},
 }
 
+var caminho := ""
 var _valores: Dictionary = {}
 ## Preenchido quando o arquivo precisou ser restaurado; a interface pode exibir o aviso.
 var aviso_pendente := ""
@@ -19,18 +20,19 @@ var aviso_pendente := ""
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	caminho = Ambiente.pasta_dados() + NOME_ARQUIVO
 	carregar()
 	aplicar_tudo()
 
 
-func carregar(caminho: String = CAMINHO) -> void:
+func carregar() -> void:
 	_valores = PADROES.duplicate(true)
 	if not FileAccess.file_exists(caminho):
 		return
 	var arquivo := ConfigFile.new()
 	if arquivo.load(caminho) != OK:
 		aviso_pendente = Textos.t("erro.configuracao")
-		salvar(caminho)
+		salvar()
 		return
 	var invalido := false
 	for secao: StringName in PADROES:
@@ -47,10 +49,11 @@ func carregar(caminho: String = CAMINHO) -> void:
 			_valores[secao][chave] = valor
 	if invalido:
 		aviso_pendente = Textos.t("erro.configuracao")
-		salvar(caminho)
+		salvar()
 
 
-func salvar(caminho: String = CAMINHO) -> void:
+func salvar() -> void:
+	Ambiente.garantir_pasta(caminho)
 	var arquivo := ConfigFile.new()
 	for secao: StringName in _valores:
 		for chave: StringName in _valores[secao]:

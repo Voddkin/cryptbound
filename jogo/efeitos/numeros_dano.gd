@@ -16,11 +16,11 @@ func _ready() -> void:
 func adicionar(posicao: Vector2, valor: float, cor: Color, critico: bool) -> void:
 	# Golpes quase simultâneos no mesmo alvo somam no mesmo número.
 	for n in _lista:
-		if n.pos.distance_to(posicao) < 6.0 and n.vida > DURACAO - 0.12 and n.cor == cor:
+		if n.origem.distance_to(posicao) < 6.0 and n.vida > DURACAO - 0.12 and n.cor == cor:
 			n.valor += valor
 			queue_redraw()
 			return
-	_lista.append({"pos": posicao + Vector2(randf_range(-3, 3), -18), "valor": valor, "cor": cor, "vida": DURACAO, "critico": critico})
+	_lista.append({"origem": posicao, "pos": posicao + Vector2(randf_range(-3, 3), -18), "valor": valor, "cor": cor, "vida": DURACAO, "critico": critico})
 	queue_redraw()
 
 

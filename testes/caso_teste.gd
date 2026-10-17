@@ -5,6 +5,20 @@ extends Node
 
 var falhas: Array[String] = []
 var afirmacoes := 0
+## Trechos de mensagens de erro que este teste provoca de propósito.
+var _erros_esperados: Array[String] = []
+
+
+## Declara que o teste vai provocar um erro do motor contendo `trecho` (não conta como falha).
+func esperar_erro(trecho: String) -> void:
+	_erros_esperados.append(trecho)
+
+
+func erro_esperado(mensagem: String) -> bool:
+	for trecho in _erros_esperados:
+		if mensagem.contains(trecho):
+			return true
+	return false
 
 
 func antes_de_cada() -> void:

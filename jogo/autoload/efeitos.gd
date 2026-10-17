@@ -10,7 +10,8 @@ var chute := Vector2.ZERO
 ## Escala de tempo fora do hitstop (câmera lenta da morte etc.).
 var escala_base := 1.0
 
-var _fim_hitstop_ms := 0
+## Hitstop restante, em segundos de tempo NÃO escalado (determinístico com --fixed-fps).
+var _hitstop_restante := 0.0
 var _particulas: SistemaParticulas
 var _manchas: ManchasChao
 var _numeros: NumerosDano
@@ -36,39 +37,42 @@ func limpar_registro() -> void:
 	trauma = 0.0
 	chute = Vector2.ZERO
 	escala_base = 1.0
-	_fim_hitstop_ms = 0
+	_hitstop_restante = 0.0
 	Engine.time_scale = 1.0
 
 
-var _ultimo_us := 0
-
-
-func _process(_delta: float) -> void:
-	# O tremor e o chute decaem em tempo real, mesmo durante o hitstop.
-	var agora := Time.get_ticks_usec()
-	var real := 0.0 if _ultimo_us == 0 else minf((agora - _ultimo_us) / 1_000_000.0, 0.1)
-	_ultimo_us = agora
+func _process(delta: float) -> void:
+	# `delta` vem escalado por Engine.time_scale; desfazendo a escala obtemos o tempo do
+	# jogo "sem câmera lenta". Com --fixed-fps (vídeos e testes) isso é determinístico.
+	var escala := Engine.time_scale
+	var real := minf(delta / escala if escala > 0.0001 else delta, 0.1)
 	trauma = maxf(trauma - TRAUMA_DECAIMENTO * real, 0.0)
 	chute = chute.lerp(Vector2.ZERO, minf(1.0, 18.0 * real))
-	if _fim_hitstop_ms > 0 and Time.get_ticks_msec() >= _fim_hitstop_ms:
-		_fim_hitstop_ms = 0
-		Engine.time_scale = escala_base
-	elif _fim_hitstop_ms == 0 and not is_equal_approx(Engine.time_scale, escala_base):
+	if _hitstop_restante > 0.0:
+		_hitstop_restante -= real
+		if _hitstop_restante <= 0.0:
+			_hitstop_restante = 0.0
+			Engine.time_scale = escala_base
+	elif not is_equal_approx(Engine.time_scale, escala_base):
 		Engine.time_scale = escala_base
 
 
 ## Congela a ação por um instante para dar peso ao impacto.
+## Timers de jogo também desaceleram durante o hitstop (intencional: o mundo para).
 func hitstop(duracao: float) -> void:
 	if duracao <= 0.0:
 		return
-	var fim := Time.get_ticks_msec() + int(duracao * 1000.0)
-	_fim_hitstop_ms = maxi(_fim_hitstop_ms, fim)
+	_hitstop_restante = maxf(_hitstop_restante, duracao)
 	Engine.time_scale = 0.03
+
+
+func em_hitstop() -> bool:
+	return _hitstop_restante > 0.0
 
 
 func definir_escala_base(escala: float) -> void:
 	escala_base = escala
-	if _fim_hitstop_ms == 0:
+	if _hitstop_restante <= 0.0:
 		Engine.time_scale = escala
 
 
