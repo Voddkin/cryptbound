@@ -1,0 +1,41 @@
+CRYPTBOUND {versao}
+A terra parou de aceitar os mortos.
+
+Primeiro marco jogável. Arte e áudio ainda são provisórios.
+
+COMO JOGAR
+  Dê dois cliques em CRYPTBOUND.exe. Não precisa instalar.
+  Requisitos: Windows 10 ou 11 de 64 bits e placa de vídeo com OpenGL 3.3
+  (se não houver, o jogo tenta Direct3D 11 automaticamente).
+
+  O executável não tem assinatura digital. Se o Windows mostrar "O Windows
+  protegeu o computador", clique em "Mais informações" e depois em
+  "Executar assim mesmo".
+
+CONTROLES
+  Ação                     Teclado e mouse        Controle
+  Mover                    W A S D / setas        Analógico esquerdo
+  Mirar                    Mouse                  Analógico direito
+  Golpe (combo de três)    Botão esquerdo / J     X / RT
+  Cavada (segure e solte)  Botão direito / K      Y / LT
+  Esquiva                  Espaço / Shift / L     A / RB
+  Interagir                E / F                  B
+  Pausa                    Esc / P                Start
+  Tela cheia               F11
+
+DICAS
+  - O olho do Ressequido brilha antes da investida: esquive para o lado.
+  - Mate a Lamuriante primeiro: ela acelera os mortos perto dela.
+  - As relíquias se combinam. Na pausa você vê o que cada uma faz.
+
+ONDE FICAM OS DADOS
+  Progresso e configurações: %APPDATA%\CRYPTBOUND
+  Apagar essa pasta zera o progresso.
+
+CRÉDITOS
+  Desenvolvido com o auxílio do Claude (Anthropic).
+  Motor Godot Engine (MIT). Fontes Jacquard 12, Jersey 10 e Micro 5
+  (The Soft Type Project Authors, SIL Open Font License 1.1).
+  Licenças completas em LICENCAS.txt e OFL.txt.
+
+Código-fonte: https://github.com/Voddkin/cryptbound

@@ -84,7 +84,12 @@ godot --path . res://jogo/mundo/descida.tscn -- --demo   # robô joga sozinho
 ferramentas/testar.sh                                    # 61 testes (headless, 60 quadros fixos)
 ferramentas/testar.sh teste_jogador                      # só os testes cujo nome contém o filtro
 ferramentas/exportar.sh                                  # build/windows/CRYPTBOUND.exe e build/linux/
+ferramentas/empacotar.sh                                 # entregas/CRYPTBOUND-windows-x64-<versão>.zip
+ferramentas/gravar_video.sh 60                           # entregas/cryptbound-demo.mp4 (robô, 60 s, com som)
 ```
+
+O `.zip` leva o `.exe`, um `LEIA-ME.txt` em pt-BR (controles, aviso do SmartScreen, onde
+ficam os dados) e as licenças exigidas (Godot MIT + terceiros, fontes OFL).
 
 Capturas e vídeo (precisa de renderização; no servidor, use Xvfb):
 

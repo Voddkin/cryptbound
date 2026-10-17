@@ -65,6 +65,10 @@ até agora, **cada um com teste que falha no código anterior e passa no novo**:
 | Baixa | Luzes de aviso continuavam acesas nos restos | Luzes se apagam na morte |
 | Baixa | Dica do golpe pesado descrevia o golpe errado | Texto corrigido |
 
+Confirmação do hitstop em jogo real (robô de demonstração, 1500 quadros a 60 fps fixos):
+o código anterior congelou **0 quadros em 15 acertos**; o corrigido congela ~4 quadros por
+acerto (24 quadros em 6 acertos, incluindo golpes sofridos pela Coveira, que congelam mais).
+
 Fora da revisão, na mesma rodada: o jogo vazava a reprodução da música ao fechar
 (`resources still in use at exit`). Agora sair (botão ou janela) registra a descida,
 silencia o áudio e fecha 0,1 s depois, sem vazamento (verificado com `--verbose`).
