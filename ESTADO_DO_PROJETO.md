@@ -28,7 +28,7 @@ Arte e áudio são **provisórios**, gerados por código (scripts em `ferramenta
 | Ressequido (investida telegrafada, postura) e Lamuriante (Lamúria, fortalece aliados) | ✅ | Testes de simulação + vídeo |
 | 3 relíquias com combinação real (Presa + Sino); o nome do estado aplicado sobe sobre o alvo | ✅ | Testes de simulação + captura |
 | 9 salas em ASCII, portas que trancam, ondas, reforços por profundidade; ninguém sai do mapa pelas passagens; relicário sem relíquias novas oferece ossos e um toco de vela | ✅ | Testes de validação/montagem de todas as salas, de fluxo + vídeo |
-| Sequência entrada → combate → relicário → combate → arena → descida → profundidade +1 | ✅ | Vídeo do robô até a profundidade 2 |
+| Sequência entrada → combate → relicário → combate → arena → descida → profundidade +1 | ✅ | Teste de fumaça: 40 descidas do robô, nenhuma trava, até a profundidade 3; vídeo final (semente 1) |
 | Interface em pt-BR: título, HUD, painel de relíquia, pausa, configurações, tela de morte | ✅ | Capturas de tela revisadas + lint de textos |
 | Configurações (volumes geral/música/efeitos, tremor de tela, tela cheia, V-Sync, números de dano) salvas em `config.cfg` | ✅ | 5 testes (`teste_config`): ida e volta, valores inválidos, arquivo ilegível, efeito no jogo, F11 com o painel aberto |
 | Salvamento robusto (temporário + validação + backup, recuperação de arquivo corrompido) | ✅ | 7 testes de salvamento |
@@ -65,7 +65,9 @@ planejado em `PLANO_DE_DESENVOLVIMENTO.md` e detalhado em `DOCUMENTO_DE_DESIGN.m
   No Wine 9.0 (o do Ubuntu 24.04) o `.exe` **cai na inicialização** dentro do `kernelbase`
   do próprio Wine (`VirtualProtect` com ponteiro nulo no código de inicialização do MinGW),
   o que indica limitação daquele Wine, não do jogo — mas só um Windows real confirma.
-- **Sem playtest humano.** A sensação de controle foi avaliada por simulação e vídeo.
+- **Sem playtest humano.** A sensação de controle foi avaliada por simulação e vídeo. No
+  teste de fumaça o robô (que não esquiva da Lamúria) morre mais na arena (22 de 40 descidas):
+  vale observar a arena no playtest, mas isso não mede a dificuldade para uma pessoa.
 - **Controle físico (gamepad) não testado.**
 - **Áudio não ouvido** (ver §3). No contêiner não há placa de som; o Godot usa o driver mudo.
 - **Desempenho medido só com renderização por software** (llvmpipe). Com 30 inimigos a
@@ -85,7 +87,7 @@ ferramentas/testar.sh                                    # 68 testes (headless, 
 ferramentas/testar.sh teste_jogador                      # só os testes cujo nome contém o filtro
 ferramentas/exportar.sh                                  # build/windows/CRYPTBOUND.exe e build/linux/
 ferramentas/empacotar.sh                                 # entregas/CRYPTBOUND-windows-x64-<versão>.zip
-ferramentas/gravar_video.sh 60                           # entregas/cryptbound-demo.mp4 (robô, 60 s, com som)
+ferramentas/gravar_video.sh 100 entregas/cryptbound-demo.mp4 1   # robô, 100 s, com som, semente 1
 godot --headless --fixed-fps 60 --path . res://testes/fumaca/robo_fumaca.tscn -- --demo --sementes=1,2,3 --prof=4
                                                          # fumaça: o robô joga descidas e aponta travamentos
 ```
@@ -126,9 +128,9 @@ real do jogador (`%APPDATA%\CRYPTBOUND` no Windows, `~/.local/share/CRYPTBOUND` 
    - `https://github.com/Kron4ek/Wine-Builds/releases/download/11.18/wine-11.18-amd64-wow64.tar.xz`
      (a variante WoW64 dispensa bibliotecas de 32 bits).
    - `apt install libegl1 libegl-mesa0 xvfb`.
-   - `WINEDLLOVERRIDES="mscoree,mshtml=" WINEPREFIX=<pasta> wine64 wineboot -i` (sem os
+   - `WINEDLLOVERRIDES="mscoree,mshtml=" WINEPREFIX=<pasta> <wine>/bin/wineboot -i` (sem os
      overrides o `wineboot` trava esperando instalar Mono/Gecko).
-   - `xvfb-run -a wine build/windows/CRYPTBOUND.exe --rendering-driver opengl3 -- --demo`.
+   - `xvfb-run -a <wine>/bin/wine build/windows/CRYPTBOUND.exe --rendering-driver opengl3 -- --demo --semente=1`.
    - Erros de ALSA/WASAPI (sem placa de som) são esperados e inofensivos.
 7. **Ler antes de mexer:** `REGRAS_DO_AGENTE.md` (idioma, mundo original, qualidade),
    `ARQUITETURA_TECNICA.md` (onde fica cada coisa) e a seção M2 do plano.

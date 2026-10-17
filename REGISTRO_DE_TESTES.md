@@ -140,6 +140,8 @@ ouvido por um humano.**
 | Linux exportado sob Xvfb (`-- --demo`) | ✅ abre, renderiza (OpenGL 4.5 Mesa) e joga; capturas conferidas |
 | Windows no **Wine 9.0** (Ubuntu 24.04) | ❌ cai na inicialização: falha de página dentro do `kernelbase` do Wine (`VirtualProtect` com ponteiro nulo no código de inicialização do MinGW) |
 | Windows no **Wine 11.18** WoW64 (Kron4ek) | ✅ sem renderização termina com sucesso; com renderização abre o OpenGL 4.5 (Mesa) e roda a demonstração; capturas conferidas. Avisos de WASAPI (sem placa de som) esperados |
+| **Build final** (17/10/2026, 14:45, exportado depois do último commit de código) | ✅ PE conferido de novo; no Wine 11.18 com `-- --demo --semente=1`: sem renderização sai com código 0; com renderização, capturas aos 20 s (Cripta dos Caixões, em combate) e 45 s (Ossuário Central, raízes fechando a passagem), depois a tela de morte com causa e dica. Linux: 1200 quadros sem erro, código 0 |
+| Pacote `CRYPTBOUND-windows-x64-0.1.0.zip` (`ferramentas/empacotar.sh`) | ✅ 41 MB; integridade do zip conferida; o `.exe` dentro é idêntico (SHA-256) ao do build; leva LEIA-ME em pt-BR, LICENCAS.txt (Godot e terceiros) e OFL.txt |
 
 ## 7. Desempenho
 
