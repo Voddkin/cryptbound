@@ -1,0 +1,17 @@
+[remap]
+
+importer="font_data_bmfont"
+type="FontFile"
+uid="uid://bm7gllp5miudg"
+path="res://.godot/imported/micro5.fnt-2d37901c148dff4f942161bb7b8bb4aa.fontdata"
+
+[deps]
+
+source_file="res://fontes/micro5.fnt"
+dest_files=["res://.godot/imported/micro5.fnt-2d37901c148dff4f942161bb7b8bb4aa.fontdata"]
+
+[params]
+
+fallbacks=[]
+compress=true
+scaling_mode=2

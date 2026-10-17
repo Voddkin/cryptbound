@@ -1,0 +1,29 @@
+{
+ "imagem": "candelabro.png",
+ "quadro": [
+  14,
+  26
+ ],
+ "colunas": 3,
+ "origem": [
+  7,
+  24
+ ],
+ "animacoes": {
+  "aceso": {
+   "quadros": [
+    0,
+    1,
+    2
+   ],
+   "fps": 7,
+   "loop": true
+  }
+ },
+ "pontos": {
+  "chama": [
+   7,
+   3
+  ]
+ }
+}

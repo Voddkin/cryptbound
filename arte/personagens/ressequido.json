@@ -1,0 +1,76 @@
+{
+ "imagem": "ressequido.png",
+ "quadro": [
+  24,
+  24
+ ],
+ "colunas": 8,
+ "origem": [
+  12,
+  23
+ ],
+ "animacoes": {
+  "andar": {
+   "quadros": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "fps": 6,
+   "loop": true
+  },
+  "preparar": {
+   "quadros": [
+    4,
+    5
+   ],
+   "fps": 8,
+   "loop": true
+  },
+  "investir": {
+   "quadros": [
+    6,
+    7
+   ],
+   "fps": 12,
+   "loop": false
+  },
+  "recuperar": {
+   "quadros": [
+    8,
+    9
+   ],
+   "fps": 5,
+   "loop": true
+  },
+  "dano": {
+   "quadros": [
+    10
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "morte": {
+   "quadros": [
+    11,
+    12,
+    13,
+    14,
+    15
+   ],
+   "fps": 10,
+   "loop": false
+  }
+ },
+ "pontos": {
+  "olho": [
+   19,
+   10
+  ],
+  "garras": [
+   20,
+   18
+  ]
+ }
+}

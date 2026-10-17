@@ -1,0 +1,72 @@
+{
+ "tamanho": 16,
+ "chao": {
+  "imagem": "chao.png",
+  "colunas": 4,
+  "pesos": [
+   12,
+   12,
+   12,
+   12,
+   3,
+   3,
+   3,
+   3,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ]
+ },
+ "topo": {
+  "imagem": "topo.png",
+  "colunas": 16
+ },
+ "sombra": {
+  "imagem": "sombra.png",
+  "colunas": 16
+ },
+ "face": {
+  "imagem": "face.png",
+  "linhas": {
+   "cima": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "baixo": [
+    5,
+    6,
+    7
+   ],
+   "unica": [
+    8,
+    9
+   ]
+  },
+  "pesos": {
+   "cima": [
+    8,
+    3,
+    2,
+    2,
+    1
+   ],
+   "baixo": [
+    8,
+    2,
+    1
+   ],
+   "unica": [
+    3,
+    1
+   ]
+  }
+ }
+}

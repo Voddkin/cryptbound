@@ -1,0 +1,16 @@
+# Cache do Godot
+.godot/
+*.translation
+
+# Builds e capturas
+build/
+capturas/
+*.avi
+
+# Python
+__pycache__/
+*.pyc
+
+# Sistema
+.DS_Store
+Thumbs.db

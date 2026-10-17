@@ -1,0 +1,17 @@
+[remap]
+
+importer="font_data_bmfont"
+type="FontFile"
+uid="uid://ceimf60ivru2t"
+path="res://.godot/imported/jacquard12.fnt-0f19190b60434cc00996b7b171317ea2.fontdata"
+
+[deps]
+
+source_file="res://fontes/jacquard12.fnt"
+dest_files=["res://.godot/imported/jacquard12.fnt-0f19190b60434cc00996b7b171317ea2.fontdata"]
+
+[params]
+
+fallbacks=[]
+compress=true
+scaling_mode=2

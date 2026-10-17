@@ -1,0 +1,33 @@
+{
+ "imagem": "porta_raizes_v.png",
+ "quadro": [
+  20,
+  32
+ ],
+ "colunas": 6,
+ "origem": [
+  10,
+  31
+ ],
+ "animacoes": {
+  "crescer": {
+   "quadros": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "fps": 14,
+   "loop": false
+  },
+  "fechada": {
+   "quadros": [
+    5
+   ],
+   "fps": 1,
+   "loop": false
+  }
+ },
+ "pontos": {}
+}

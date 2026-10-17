@@ -1,0 +1,76 @@
+; Arquivo de configuração do projeto Godot.
+; Mantido à mão: veja ARQUITETURA_TECNICA.md antes de alterar.
+
+config_version=5
+
+[application]
+
+config/name="CRYPTBOUND"
+config/description="Ação e exploração de masmorras em pixel art. A terra parou de aceitar os mortos."
+config/version="0.1.0"
+run/main_scene="res://jogo/interface/tela_titulo.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+config/icon="res://icon.png"
+config/use_custom_user_dir=true
+config/custom_user_dir_name="CRYPTBOUND"
+boot_splash/bg_color=Color(0.0509804, 0.0392157, 0.0627451, 1)
+boot_splash/show_image=false
+
+[autoload]
+
+Controles="*res://jogo/autoload/controles.gd"
+Config="*res://jogo/autoload/config.gd"
+Eventos="*res://jogo/autoload/eventos.gd"
+Audio="*res://jogo/autoload/audio.gd"
+Efeitos="*res://jogo/autoload/efeitos.gd"
+Salvamento="*res://jogo/autoload/salvamento.gd"
+Jogo="*res://jogo/autoload/jogo.gd"
+
+[debug]
+
+gdscript/warnings/untyped_declaration=1
+gdscript/warnings/unsafe_property_access=0
+gdscript/warnings/unsafe_method_access=0
+gdscript/warnings/inference_on_variant=1
+
+[display]
+
+window/size/viewport_width=640
+window/size/viewport_height=360
+window/size/window_width_override=1280
+window/size/window_height_override=720
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
+window/stretch/scale_mode="integer"
+window/vsync/vsync_mode=1
+mouse_cursor/custom_image="res://arte/interface/cursor.png"
+mouse_cursor/custom_image_hotspot=Vector2(5, 5)
+
+[gui]
+
+theme/default_texture_filter=0
+
+[layer_names]
+
+2d_physics/layer_1="mundo"
+2d_physics/layer_2="jogador"
+2d_physics/layer_3="inimigos"
+2d_physics/layer_4="golpes_jogador"
+2d_physics/layer_5="golpes_inimigos"
+2d_physics/layer_6="coletaveis"
+2d_physics/layer_7="interagiveis"
+2d_physics/layer_8="voo"
+
+[physics]
+
+common/physics_ticks_per_second=60
+common/physics_interpolation=true
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/canvas_textures/default_texture_filter=0
+2d/snap/snap_2d_transforms_to_pixel=true
+2d/snap/snap_2d_vertices_to_pixel=true
+environment/defaults/default_clear_color=Color(0.0509804, 0.0392157, 0.0627451, 1)

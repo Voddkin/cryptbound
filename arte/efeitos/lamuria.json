@@ -1,0 +1,24 @@
+{
+ "imagem": "lamuria.png",
+ "quadro": [
+  16,
+  16
+ ],
+ "colunas": 3,
+ "origem": [
+  8,
+  8
+ ],
+ "animacoes": {
+  "voar": {
+   "quadros": [
+    0,
+    1,
+    2
+   ],
+   "fps": 12,
+   "loop": true
+  }
+ },
+ "pontos": {}
+}

@@ -1,0 +1,70 @@
+{
+ "imagem": "lamuriante.png",
+ "quadro": [
+  24,
+  32
+ ],
+ "colunas": 8,
+ "origem": [
+  12,
+  31
+ ],
+ "animacoes": {
+  "flutuar": {
+   "quadros": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "fps": 5,
+   "loop": true
+  },
+  "preparar": {
+   "quadros": [
+    4,
+    5,
+    6
+   ],
+   "fps": 6,
+   "loop": false
+  },
+  "lancar": {
+   "quadros": [
+    7,
+    8
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "dano": {
+   "quadros": [
+    9
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "morte": {
+   "quadros": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+   ],
+   "fps": 8,
+   "loop": false
+  }
+ },
+ "pontos": {
+  "boca": [
+   12,
+   14
+  ],
+  "velas": [
+   12,
+   2
+  ]
+ }
+}

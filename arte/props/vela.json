@@ -1,0 +1,29 @@
+{
+ "imagem": "vela.png",
+ "quadro": [
+  8,
+  14
+ ],
+ "colunas": 3,
+ "origem": [
+  4,
+  13
+ ],
+ "animacoes": {
+  "acesa": {
+   "quadros": [
+    0,
+    1,
+    2
+   ],
+   "fps": 8,
+   "loop": true
+  }
+ },
+ "pontos": {
+  "chama": [
+   4,
+   2
+  ]
+ }
+}
