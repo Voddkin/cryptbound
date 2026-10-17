@@ -19,7 +19,7 @@ O executor (`testes/executar_testes.gd`) captura **todo erro do motor** por um `
 provocados de propósito são declarados com `esperar_erro()`. Script com erro de compilação
 também reprova. Com `--fixed-fps 60` a simulação é determinística.
 
-**Último resultado (17/10/2026): `RESULTADO: 67 testes, 0 falhas (1.2s)`.**
+**Último resultado (17/10/2026): `RESULTADO: 68 testes, 0 falhas (1.4s)`.**
 
 | Arquivo | Testes | O que garante |
 |---|---|---|
@@ -33,7 +33,7 @@ também reprova. Com `--fixed-fps 60` a simulação é determinística.
 | `unit/teste_salas.gd` | 5 | As 9 salas são válidas e montam com colisão e chão completos, portas, caminho até a saída; validador rejeita salas quebradas; faces 3/4 das paredes; caminho e visão para quem encosta em objetos baixos |
 | `unit/teste_textos.gd` | 4 | Toda chave usada existe; toda chave definida é usada (nada de mensagem morta); nada de "TODO", texto provisório ou inglês acidental em textos e dados; campos formatados |
 | `simulacao/teste_jogador.gd` | 8 | 8 direções sem passar da velocidade, aceleração curta, colisão com parede, esquiva intocável e útil, golpe na cauda da esquiva restaura colisão, combo mata Ressequido, buffer de ataque durante a esquiva |
-| `simulacao/teste_inimigos.gd` | 9 | Ressequido telegrafa, investe e acerta; aviso ≥ 0,5 s (também fortalecido); só golpe forte interrompe; Lamuriante fortalece e lança Lamúria; morte solta ossos e deixa restos; Lamúria some com a sala purificada; restos apagam as luzes e não atravessam paredes |
+| `simulacao/teste_inimigos.gd` | 10 | Ressequido telegrafa, investe e acerta; aviso ≥ 0,5 s (também fortalecido); só golpe forte interrompe; Lamuriante fortalece e lança Lamúria; Lamuriante sem linha de tiro contorna o obstáculo e lança; morte solta ossos e deixa restos; Lamúria some com a sala purificada; restos apagam as luzes e não atravessam paredes |
 | `simulacao/teste_reliquias.gd` | 5 | Vela Perene; Presa aplica Sangria só no golpe final; Sino empurra e atordoa ao esquivar; combinação Sino + Sangria; o nome do estado aplicado sobe sobre o alvo (uma vez) |
 | `simulacao/teste_fluxo.gd` | 6 | Sala tranca, ergue ondas e libera; ninguém sai do mapa pela passagem de entrada; relicário sem relíquias novas oferece oferendas e explica; relicário com relíquias avisa que só uma pode ser levada; saída aberta leva adiante; morte mostra a causa, registra no progresso e encerra a câmera lenta |
 
@@ -87,7 +87,36 @@ Fora da revisão, na mesma rodada: o jogo vazava a reprodução da música ao fe
 (`resources still in use at exit`). Agora sair (botão ou janela) registra a descida,
 silencia o áudio e fecha 0,1 s depois, sem vazamento (verificado com `--verbose`).
 
-## 3. Verificação visual
+## 3. Teste de fumaça: o robô joga descidas inteiras
+
+`testes/fumaca/robo_fumaca.tscn` (fora da suíte): o robô de demonstração joga descidas com
+várias sementes, sem renderização e em quadros fixos, e o roteiro aponta onde ele **travou**
+(60 s de jogo sem progresso), morreu ou chegou à profundidade-alvo. Uma rodada de 40 descidas
+leva menos de um minuto.
+
+```bash
+godot --headless --fixed-fps 60 --path . res://testes/fumaca/robo_fumaca.tscn -- --demo \
+  --sementes=1,2,3 --prof=4
+```
+
+Como surgiu: o `.exe` rodando no Wine mostrou a mesma cena congelada aos 20, 45 e 75 s — o
+robô encostado num bloco de parede e uma Lamuriante parada do outro lado, numa sala trancada.
+A investigação achou quatro defeitos:
+
+| Defeito | Onde | Correção |
+|---|---|---|
+| Lamuriante sem linha de tiro ficava indecisa para sempre entre fugir (< 78 px) e se aproximar pelo A*, sem nunca lançar | Jogo (IA) | Sem linha de tiro, ela contorna o obstáculo; só foge se tiver linha de tiro (teste novo) |
+| O caminho do A* começa no centro da célula atual: inimigos voltavam até ele a cada recálculo (tranco a cada 0,35 s) e o robô ia e voltava dentro da mesma célula para sempre | Jogo e robô | O primeiro ponto do caminho é descartado |
+| O áudio usava o relógio de parede para não repetir sons e consumia o gerador aleatório global: a mesma semente produzia descidas diferentes | Jogo | Áudio com gerador próprio e relógio de tempo de jogo; a descida semeia o gerador global (`-- --semente=N` reproduz uma descida) |
+| O robô parava no meio da passagem de saída, antes do gatilho | Robô | Mira além da borda externa (o limite da passagem o segura dentro do gatilho) |
+
+**Resultado (17/10/2026), 40 sementes:** nenhuma descida travou; profundidade final 1 em 14,
+2 em 20 e 3 em 6; mortes por sala: arena 22, caixões 7, estreita 6, pilares 5. Duas rodadas
+seguidas deram saídas **idênticas** (determinismo confirmado). O robô é burro de propósito
+(não esquiva da Lamúria nem se afasta), então as mortes **não medem a dificuldade para uma
+pessoa**; só mostram que a arena é o pico de pressão da profundidade.
+
+## 4. Verificação visual
 
 | O quê | Como | Resultado |
 |---|---|---|
@@ -95,14 +124,14 @@ silencia o áudio e fecha 0,1 s depois, sem vazamento (verificado com `--verbose
 | 10 telas (título, créditos, antecâmara com dicas, painel de relíquia, pausa, configurações, combate com nomes de estados, relicário vazio, Coveira tombando, tela de morte) | `testes/captura/capturar_telas.tscn` sob Xvfb | 5 problemas corrigidos (painel sobre as dicas, configurações sobre relíquias, estatísticas da morte, menu do título, créditos passando da tela) |
 | Ciclo completo jogado pelo robô | Movie Maker (`--write-movie`) sob Xvfb, 30 fps fixos, quadros extraídos com ffmpeg | Entrada → combate → relicário (pega relíquia) → combate → arena (2 ondas) → descida → profundidade 2. Vídeo gravado **antes** da correção do hitstop |
 
-## 4. Áudio
+## 5. Áudio
 
 42 efeitos e 3 músicas (camadas de exploração e combate) gerados por síntese. Verificado
 **numericamente**: picos abaixo de 0 dBFS, emenda do loop sem descontinuidade (frequências
 quantizadas a ciclos inteiros), agudos filtrados após análise espectral. **Nenhum som foi
 ouvido por um humano.**
 
-## 5. Exportação e execução fora do editor
+## 6. Exportação e execução fora do editor
 
 | Verificação | Resultado |
 |---|---|
@@ -112,7 +141,7 @@ ouvido por um humano.**
 | Windows no **Wine 9.0** (Ubuntu 24.04) | ❌ cai na inicialização: falha de página dentro do `kernelbase` do Wine (`VirtualProtect` com ponteiro nulo no código de inicialização do MinGW) |
 | Windows no **Wine 11.18** WoW64 (Kron4ek) | ✅ sem renderização termina com sucesso; com renderização abre o OpenGL 4.5 (Mesa) e roda a demonstração; capturas conferidas. Avisos de WASAPI (sem placa de som) esperados |
 
-## 6. Desempenho
+## 7. Desempenho
 
 `testes/desempenho/estresse.tscn`: descida real com o robô, 30 inimigos erguidos de uma
 vez (Ressequidos e Lamuriantes) e rajadas de partículas a cada 20 quadros; 900 quadros
@@ -131,7 +160,7 @@ de uma CPU de servidor, **não** de um PC de jogador. Os quadros mais lentos (~4
 também na linha de base e coincidem com picos da renderização por software. As salas de
 combate têm de 5 a 9 inimigos somando as ondas (mais até 3 reforços nas profundidades altas).
 
-## 7. O que NÃO foi testado
+## 8. O que NÃO foi testado
 
 - **Windows real** (só Wine 11.18).
 - **Playtest humano**: sensação de controle, dificuldade e clareza nunca foram avaliadas por

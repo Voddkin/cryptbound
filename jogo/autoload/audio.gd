@@ -13,8 +13,14 @@ var _pool: Array[AudioStreamPlayer2D] = []
 var _pool_ui: Array[AudioStreamPlayer] = []
 var _proximo := 0
 var _proximo_ui := 0
-## Último momento (ms) em que cada som tocou, para evitar empilhamento no mesmo quadro.
-var _ultimo_toque: Dictionary[StringName, int] = {}
+## Último momento (s, no relógio do áudio) em que cada som tocou, para não empilhar.
+var _ultimo_toque: Dictionary[StringName, float] = {}
+## Relógio do áudio: tempo de jogo sem câmera lenta, somado quadro a quadro (o relógio de
+## parede tornava a jogabilidade não determinística, via gerador global).
+var _relogio := 0.0
+## Aleatoriedade só do áudio (variação e tom): nunca consome o gerador global, que decide a
+## jogabilidade — a mesma semente reproduz a mesma descida.
+var _rng := RandomNumberGenerator.new()
 
 var _camada_exploracao: AudioStreamPlayer
 var _camada_combate: AudioStreamPlayer
@@ -96,6 +102,11 @@ func _carregar_sfx() -> void:
 		_sfx[id].append(stream)
 
 
+func _process(delta: float) -> void:
+	# Roda antes de Efeitos (ordem dos autoloads), então a escala ainda é a deste quadro.
+	_relogio += delta / maxf(Engine.time_scale, 0.0001)
+
+
 func existe(id: StringName) -> bool:
 	return _sfx.has(id)
 
@@ -105,12 +116,11 @@ func tocar(id: StringName, posicao: Vector2 = Vector2.INF, variacao_tom: float =
 	var variacoes: Array = _sfx.get(id, [])
 	if variacoes.is_empty():
 		return
-	var agora := Time.get_ticks_msec()
-	if agora - int(_ultimo_toque.get(id, -1000)) < 30:
+	if _relogio - float(_ultimo_toque.get(id, -1.0)) < 0.03:
 		return
-	_ultimo_toque[id] = agora
-	var stream: AudioStream = variacoes[randi() % variacoes.size()]
-	var tom := 1.0 + randf_range(-variacao_tom, variacao_tom)
+	_ultimo_toque[id] = _relogio
+	var stream: AudioStream = variacoes[_rng.randi() % variacoes.size()]
+	var tom := 1.0 + _rng.randf_range(-variacao_tom, variacao_tom)
 	if posicao == Vector2.INF:
 		var u := _pool_ui[_proximo_ui]
 		_proximo_ui = (_proximo_ui + 1) % _pool_ui.size()

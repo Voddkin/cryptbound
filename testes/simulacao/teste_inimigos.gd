@@ -108,6 +108,28 @@ func teste_lamuriante_lanca_lamuria() -> void:
 	afirmar(viu_projetil, "a Lamuriante lançou uma Lamúria")
 
 
+const SALA_BLOCO := "nome: Teste\ntipo: inicio\n---\n##############\n##############\n##############\n#............#\n#............#\n#...######...#\n#...######...#\n#...######...#\n#............#\n#.....@......#\n#............#\n##############\n"
+
+
+func teste_lamuriante_sem_linha_de_tiro_procura_uma() -> void:
+	# A Coveira parada atrás de um bloco de parede, a ~96 px: a Lamuriante não pode ficar
+	# indecisa entre fugir e se aproximar; ela contorna o bloco até ter linha de tiro.
+	m.queue_free()
+	m = MundoTeste.criar(self, SALA_BLOCO)
+	await quadros(2)
+	var l := m.inimigo(&"lamuriante", m.sala.centro_celula(Vector2i(6, 3)) + Vector2(0, 4)) as Lamuriante
+	afirmar(not m.sala.visao_livre(l.global_position + Vector2(0, -12), m.jogador.global_position + Vector2(0, -8)), "começa sem linha de tiro")
+	var lancou := false
+	for i in 480:
+		await quadros(1)
+		for filho in m.sala.mundo.get_children():
+			if filho is ProjetilLamuria:
+				lancou = true
+		if lancou:
+			break
+	afirmar(lancou, "em até 8 s ela encontra uma linha de tiro e lança a Lamúria")
+
+
 func teste_morte_solta_ossos_e_deixa_restos() -> void:
 	await quadros(2)
 	var r := m.inimigo(&"ressequido", m.jogador.global_position + Vector2(50, 0))

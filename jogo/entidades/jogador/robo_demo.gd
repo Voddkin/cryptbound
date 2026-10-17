@@ -1,8 +1,9 @@
 class_name RoboDemo
 extends FonteEntrada
 ## Robô que joga sozinho (modo --demo): usado para capturas, vídeos e testes de fumaça.
-## Não é "inteligente": persegue o inimigo mais próximo, golpeia em combo, esquiva quando um
-## Ressequido prepara a investida, pega a primeira relíquia, segue para a saída e desce.
+## Não é "inteligente": persegue o inimigo mais próximo (contornando paredes pelo A* da sala),
+## golpeia em combo, esquiva quando um Ressequido prepara a investida, pega a primeira
+## relíquia, segue para a saída e desce.
 
 var _t := 0.0
 var _proxima_acao := 0.0
@@ -35,7 +36,7 @@ func atualizar(jogador: Node2D, delta: float) -> void:
 				esquivar = true
 				return
 		if dist > 26.0:
-			mover = para.normalized()
+			mover = _direcao_ate(jogador, alvo.global_position)
 		elif dist < 14.0:
 			mover = -para.normalized() * 0.5
 		if dist < 34.0 and _t >= _proxima_acao:
@@ -51,9 +52,21 @@ func atualizar(jogador: Node2D, delta: float) -> void:
 	if destino != Vector2.INF:
 		var para := destino - jogador.global_position
 		if para.length() > 6.0:
-			mover = para.normalized()
+			mover = _direcao_ate(jogador, destino)
 		else:
 			interagir = true
+
+
+## Direção até o destino: em linha reta se houver visão; senão, o próximo ponto do A*.
+## O caminho começa no centro da célula atual: seguir para ele fazia o robô ir e voltar
+## dentro da mesma célula para sempre. Vai direto ao centro da célula seguinte.
+func _direcao_ate(jogador: Node2D, destino: Vector2) -> Vector2:
+	var sala := jogador.get_parent().get_parent() as Sala
+	if sala and not sala.visao_livre(jogador.global_position, destino):
+		var caminho := sala.caminho(jogador.global_position, destino)
+		if caminho.size() > 1:
+			return (caminho[1] - jogador.global_position).normalized()
+	return (destino - jogador.global_position).normalized()
 
 
 func _inimigo_mais_proximo(jogador: Node2D, arvore: SceneTree) -> Node2D:
@@ -91,9 +104,10 @@ func _destino_sem_combate(jogador: Node2D, arvore: SceneTree) -> Vector2:
 		var porta: Porta = sala.portas.get(sala.definicao.saida)
 		if porta:
 			var r := porta.retangulo()
-			# Caminha até a passagem pelo A* da sala
+			# Caminha até a passagem pelo A* da sala e depois empurra além da borda externa
+			# (o limite da passagem segura a Coveira dentro do gatilho de saída).
 			var caminho := sala.caminho(jogador.global_position, r.get_center())
 			if caminho.size() > 1:
 				return caminho[1]
-			return r.get_center() + Vector2(porta.direcao) * 8.0
+			return r.get_center() + Vector2(porta.direcao) * (r.size.length() + 16.0)
 	return Vector2.INF

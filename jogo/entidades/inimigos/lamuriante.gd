@@ -60,10 +60,14 @@ func _pensar(delta: float) -> void:
 			_brilho.energy = move_toward(_brilho.energy, 0.0, delta * 2.0)
 			var dist := distancia_alvo()
 			var visao := sala == null or sala.visao_livre(global_position + Vector2(0, -12), alvo.global_position + Vector2(0, -8))
-			if dist < DISTANCIA_MIN:
+			if not visao and dist > DISTANCIA_MIN * 0.5:
+				# Sem linha de tiro, contorna o obstáculo pelo A* até ter uma. Fugir aqui a
+				# deixava indecisa para sempre entre fugir e se aproximar, sem nunca lançar.
+				mover_para(alvo.global_position, dados.velocidade, delta)
+			elif dist < DISTANCIA_MIN:
 				var fuga := (global_position - alvo.global_position).normalized()
 				mover_para(global_position + fuga * 32.0, dados.velocidade * 1.1, delta)
-			elif dist > DISTANCIA_MAX or not visao:
+			elif dist > DISTANCIA_MAX:
 				mover_para(alvo.global_position, dados.velocidade, delta)
 			else:
 				var lado := (global_position - alvo.global_position).normalized().orthogonal() * _sentido_rodeio

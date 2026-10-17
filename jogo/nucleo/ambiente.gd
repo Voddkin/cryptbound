@@ -6,6 +6,7 @@ extends RefCounted
 ## Modos (argumentos depois de `--` na linha de comando):
 ##   --demo        robô joga sozinho (capturas e vídeos)
 ##   --testes      executor de testes (também detectado pela cena do executor)
+##   --semente=N   toda descida usa a semente N (reproduzível)
 
 
 static func em_teste() -> bool:
@@ -17,6 +18,14 @@ static func em_teste() -> bool:
 
 static func em_demo() -> bool:
 	return OS.get_cmdline_user_args().has("--demo")
+
+
+## Semente pedida com `--semente=N`, ou -1 se nenhuma.
+static func semente_fixa() -> int:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--semente="):
+			return maxi(int(arg.get_slice("=", 1)), 0)
+	return -1
 
 
 ## Pasta base dos dados graváveis (termina com "/").

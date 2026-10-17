@@ -47,10 +47,10 @@ testes/       executor, CasoTeste, unit/, simulacao/, captura/ (telas), desempen
 | `Controles` | Registra o mapa de ações em código; detecta teclado/mouse × controle; nome da tecla para dicas. |
 | `Config` | Opções em `config.cfg`; valida tipos e faixas; aplica volume/tela/vsync. |
 | `Eventos` | Barramento de sinais (HUD, áudio, estatísticas e itens não se conhecem). |
-| `Audio` | Cria barramentos (Música, Efeitos com reverb, limitador no Master); variações de SFX; música em 2 camadas sincronizadas (exploração + combate) com transição de volume. |
+| `Audio` | Cria barramentos (Música, Efeitos com reverb, limitador no Master); variações de SFX; música em 2 camadas sincronizadas (exploração + combate) com transição de volume. Tem **gerador aleatório próprio** e relógio de tempo de jogo (nunca o relógio de parede). |
 | `Efeitos` | Dono único de `Engine.time_scale`, gravado só no próprio `_process` (o motor lê a escala no início do quadro, então o `delta` seguinte foi escalado exatamente pelo valor gravado): hitstop e câmera lenta pedidos valem a partir do quadro seguinte, contados em tempo não escalado e determinísticos com `--fixed-fps`; tremor por trauma, partículas, manchas, números, anéis. |
 | `Salvamento` | Progresso JSON versionado; escrita atômica (ver abaixo). |
-| `Jogo` | Estado da descida (velas, ossos, relíquias, profundidade, semente, estatísticas) e troca de cenas. |
+| `Jogo` | Estado da descida (velas, ossos, relíquias, profundidade, semente, estatísticas) e troca de cenas. A semente da descida (sorteada, ou `-- --semente=N`) semeia o `rng` da descida **e o gerador global**. |
 
 `Ambiente` (classe estática) detecta modo de teste (`executar_testes.tscn`) e demonstração
 (`-- --demo`); nesses modos os dados graváveis vão para `user://testes/` e `user://demo/`.
@@ -76,6 +76,11 @@ Máquina de estados por enum (`Situacao`: LIVRE, ATACANDO, CARREGANDO, ESQUIVAND
 MORTO, PARADO). Fases de golpe: antecipação → ativo → recuperação, com janela de cancelamento
 por golpe. A entrada vem de uma `FonteEntrada` injetável — `EntradaHumana` (teclado/mouse/
 controle), fonte de teste ou `RoboDemo` — o que permite simulação determinística e vídeos.
+
+**Regra de determinismo:** com `--fixed-fps`, a mesma semente e as mesmas entradas reproduzem
+a mesma descida (o teste de fumaça confere rodando duas vezes). Para manter isso, nada que
+afete a jogabilidade pode depender do relógio de parede (`Time.get_ticks_*`), e aleatoriedade
+só cosmética (som, por exemplo) usa um gerador próprio em vez do global.
 
 ## Inimigos
 

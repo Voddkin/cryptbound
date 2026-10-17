@@ -233,6 +233,9 @@ func mover_para(destino: Vector2, velocidade: float, delta: float) -> void:
 		if _tempo_caminho <= 0.0 or _caminho.is_empty():
 			_tempo_caminho = 0.35
 			_caminho = sala.caminho(global_position, destino)
+			# O primeiro ponto é o centro da própria célula: voltar até ele travava o passo.
+			if _caminho.size() > 1:
+				_caminho.remove_at(0)
 		while _caminho.size() > 1 and global_position.distance_to(_caminho[0]) < 6.0:
 			_caminho.remove_at(0)
 		if not _caminho.is_empty():

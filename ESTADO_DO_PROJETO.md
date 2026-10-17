@@ -37,7 +37,7 @@ Arte e áudio são **provisórios**, gerados por código (scripts em `ferramenta
 | Executável Linux x86_64 | ✅ | Execução fora do editor sob Xvfb |
 | Desempenho | ✅ | Cena de estresse com 30 inimigos (ver `REGISTRO_DE_TESTES.md`) |
 
-**Testes automatizados:** 67, todos passando (`ferramentas/testar.sh`).
+**Testes automatizados:** 68, todos passando (`ferramentas/testar.sh`).
 
 ## 3. O que é provisório
 
@@ -81,12 +81,17 @@ planejado em `PLANO_DE_DESENVOLVIMENTO.md` e detalhado em `DOCUMENTO_DE_DESIGN.m
 ```bash
 godot --path .                                           # abre o jogo (tela de título)
 godot --path . res://jogo/mundo/descida.tscn -- --demo   # robô joga sozinho
-ferramentas/testar.sh                                    # 67 testes (headless, 60 quadros fixos)
+ferramentas/testar.sh                                    # 68 testes (headless, 60 quadros fixos)
 ferramentas/testar.sh teste_jogador                      # só os testes cujo nome contém o filtro
 ferramentas/exportar.sh                                  # build/windows/CRYPTBOUND.exe e build/linux/
 ferramentas/empacotar.sh                                 # entregas/CRYPTBOUND-windows-x64-<versão>.zip
 ferramentas/gravar_video.sh 60                           # entregas/cryptbound-demo.mp4 (robô, 60 s, com som)
+godot --headless --fixed-fps 60 --path . res://testes/fumaca/robo_fumaca.tscn -- --demo --sementes=1,2,3 --prof=4
+                                                         # fumaça: o robô joga descidas e aponta travamentos
 ```
+
+`-- --semente=N` faz toda descida usar a semente N: com as mesmas entradas, a mesma descida
+se repete (útil para reproduzir um defeito).
 
 O `.zip` leva o `.exe`, um `LEIA-ME.txt` em pt-BR (controles, aviso do SmartScreen, onde
 ficam os dados) e as licenças exigidas (Godot MIT + terceiros, fontes OFL).
@@ -116,7 +121,7 @@ real do jogador (`%APPDATA%\CRYPTBOUND` no Windows, `~/.local/share/CRYPTBOUND` 
 3. **Python** (só para regenerar arte/áudio e checar o `.exe`): `pip install pillow numpy fonttools pefile`
    (ffmpeg e ImageMagick vêm do sistema).
 4. **Primeira importação:** `godot --headless --path . --import` (cria `.godot/`).
-5. **Conferir:** `ferramentas/testar.sh` deve terminar com `RESULTADO: 67 testes, 0 falhas`.
+5. **Conferir:** `ferramentas/testar.sh` deve terminar com `RESULTADO: 68 testes, 0 falhas`.
 6. **Testar o `.exe` sem Windows (opcional):**
    - `https://github.com/Kron4ek/Wine-Builds/releases/download/11.18/wine-11.18-amd64-wow64.tar.xz`
      (a variante WoW64 dispensa bibliotecas de 32 bits).

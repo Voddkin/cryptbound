@@ -56,10 +56,16 @@ func sair() -> void:
 	get_tree().quit()
 
 
-## Reinicia o estado para uma nova descida. `nova_semente` < 0 sorteia uma semente.
+## Reinicia o estado para uma nova descida. `nova_semente` < 0 usa a semente pedida na linha
+## de comando (`-- --semente=N`, descidas reproduzíveis) ou sorteia uma.
 func nova_descida(nova_semente: int = -1) -> void:
+	if nova_semente < 0:
+		nova_semente = Ambiente.semente_fixa()
 	semente = nova_semente if nova_semente >= 0 else int(Time.get_unix_time_from_system() * 1000.0) % 2147483647
 	rng.seed = semente
+	# O gerador global (tempos dos inimigos, espólio) também parte da semente: com as mesmas
+	# entradas, a mesma semente reproduz a mesma descida.
+	seed(semente)
 	profundidade = 1
 	ossos = 0
 	velas_max = VELAS_INICIAIS
