@@ -1,0 +1,127 @@
+# Registro de Testes — CRYPTBOUND
+
+Registro do que foi **de fato executado** e do resultado obtido. O que não foi testado
+está listado no fim, com o motivo. Ambiente de desenvolvimento: Ubuntu 24.04 em contêiner
+(4 vCPUs, sem GPU, sem placa de som), Godot 4.7.2-stable, renderização por software
+(Mesa llvmpipe) quando há janela.
+
+---
+
+## 1. Testes automatizados
+
+```bash
+ferramentas/testar.sh            # importa, roda tudo headless com --fixed-fps 60
+ferramentas/testar.sh salvamento # só testes cujo arquivo ou nome contém o filtro
+```
+
+O executor (`testes/executar_testes.gd`) captura **todo erro do motor** por um `Logger`
+(`OS.add_logger`): um erro inesperado reprova o teste mesmo que as afirmações passem; erros
+provocados de propósito são declarados com `esperar_erro()`. Script com erro de compilação
+também reprova. Com `--fixed-fps 60` a simulação é determinística.
+
+**Último resultado (17/10/2026): `RESULTADO: 61 testes, 0 falhas (1.0s)`.**
+
+| Arquivo | Testes | O que garante |
+|---|---|---|
+| `unit/teste_estados.gd` | 5 | Sangria causa dano por distância (não parada), acumula até 3, estados expiram, fábrica conhece todos |
+| `unit/teste_gatilhos.gd` | 4 | Etiquetas exigidas, limite de encadeamento (2), recarga interna, profundidade em golpes derivados |
+| `unit/teste_caixa_golpe.gd` | 3 | Um acerto por ativação; desativar+ativar no mesmo quadro funciona; alvo fora do alcance |
+| `unit/teste_salvamento.gd` | 7 | Caminho isolado nos testes, ida e volta, corrompido → backup, `.tmp` mais novo vence, sem backup recomeça, tipos inválidos rejeitam o arquivo, versão antiga ganha campos novos |
+| `unit/teste_config.gd` | 4 | Configurações: ida e volta, valores inválidos viram padrão com aviso, arquivo ilegível, opções de tremor e números de dano mudam o jogo |
+| `unit/teste_efeitos.gd` | 3 | Hitstop pedido na física dura o tempo certo; tremor e recuo sobrevivem ao quadro do impacto; hitstop dentro da câmera lenta volta para a câmera lenta |
+| `unit/teste_dados.gd` | 3 | Arma, todas as relíquias e todos os inimigos carregam com classe certa e textos pt-BR preenchidos |
+| `unit/teste_salas.gd` | 5 | As 9 salas são válidas e montam com colisão e chão completos, portas, caminho até a saída; validador rejeita salas quebradas; faces 3/4 das paredes; caminho e visão para quem encosta em objetos baixos |
+| `unit/teste_textos.gd` | 3 | Toda chave usada existe; nada de "TODO", texto provisório ou inglês acidental em textos e dados; campos formatados |
+| `simulacao/teste_jogador.gd` | 8 | 8 direções sem passar da velocidade, aceleração curta, colisão com parede, esquiva intocável e útil, golpe na cauda da esquiva restaura colisão, combo mata Ressequido, buffer de ataque durante a esquiva |
+| `simulacao/teste_inimigos.gd` | 9 | Ressequido telegrafa, investe e acerta; aviso ≥ 0,5 s (também fortalecido); só golpe forte interrompe; Lamuriante fortalece e lança Lamúria; morte solta ossos e deixa restos; Lamúria some com a sala purificada; restos apagam as luzes e não atravessam paredes |
+| `simulacao/teste_reliquias.gd` | 4 | Vela Perene; Presa aplica Sangria só no golpe final; Sino empurra e atordoa ao esquivar; combinação Sino + Sangria |
+| `simulacao/teste_fluxo.gd` | 3 | Sala tranca, ergue ondas e libera; saída aberta leva adiante; morte mostra a causa, registra no progresso e encerra a câmera lenta |
+
+Os testes de simulação montam uma sala real (`MundoTeste`) com a Coveira controlada por uma
+fonte de entrada de teste, ou seja, passam pelo mesmo código do jogo.
+
+## 2. Revisões adversariais (revisores independentes + verificação cética)
+
+### 1ª revisão — fundação (16–17/10/2026)
+Quatro dimensões: GDScript/API do Godot 4.7.2, salvamento e testes, pipelines Python, desenho
+do M1. **23 achados confirmados, todos corrigidos** (commits `a45c2c3` e `554f934`). Os mais
+graves: o executor de testes dava falso positivo (erros de execução não reprovavam, script
+inválido era ignorado); janelas de perda de dados no salvamento; hitstop medido em relógio
+real; caixa de golpe "morta" ao desativar e ativar no mesmo quadro; dano aplicado durante o
+flush da física; dois donos da escala de tempo; defeitos nos geradores de arte e áudio.
+
+### 2ª revisão — M1 jogável (17/10/2026)
+Quatro dimensões: Coveira e combate, inimigos, mundo e salas, interface. Achados corrigidos
+até agora, **cada um com teste que falha no código anterior e passa no novo**:
+
+| Gravidade | Achado | Correção |
+|---|---|---|
+| Alta | Hitstop, tremor e recuo de câmera eram cancelados no quadro do impacto (o motor lê `Engine.time_scale` no início do quadro; o tempo era medido com a escala nova) | `Efeitos` é o único que grava a escala, só no próprio `_process` |
+| Média | Golpe na cauda vulnerável da esquiva deixava a Coveira atravessando inimigos | `_sair_da_esquiva()` também ao ser atingida |
+| Média | Inimigos paravam e o Ressequido não atacava quando a Coveira encostava em caixões/crânios | Caminho usa a célula andável vizinha; visão ignora as células das pontas |
+| Média | Fortalecimento da Lamuriante encurtava o aviso da investida para 0,38 s | O preparo não acelera mais (aviso ≥ 0,5 s) |
+| Baixa | Cadáver atravessava paredes com o empurrão do golpe final | Cadáver continua colidindo com o cenário |
+| Baixa | Lamúria em voo tirava vela depois de a sala ser purificada | Desfaz-se em `sala_limpa` |
+| Baixa | Luzes de aviso continuavam acesas nos restos | Luzes se apagam na morte |
+| Baixa | Dica do golpe pesado descrevia o golpe errado | Texto corrigido |
+
+Fora da revisão, na mesma rodada: o jogo vazava a reprodução da música ao fechar
+(`resources still in use at exit`). Agora sair (botão ou janela) registra a descida,
+silencia o áudio e fecha 0,1 s depois, sem vazamento (verificado com `--verbose`).
+
+## 3. Verificação visual
+
+| O quê | Como | Resultado |
+|---|---|---|
+| Arte provisória (tiles, Coveira, inimigos, objetos, HUD) | Folhas renderizadas ampliadas e inspecionadas | Problemas encontrados e corrigidos: Ressequido com silhueta de elefante, chamas em cruz, "rosto de robô" no altar, piso ruidoso, topo das paredes escuro demais |
+| 8 telas principais (título, antecâmara com dicas, painel de relíquia, pausa, configurações, combate, Coveira tombando, tela de morte) | `testes/captura/capturar_telas.tscn` sob Xvfb | 4 problemas de legibilidade corrigidos (painel sobre as dicas, configurações sobre relíquias, estatísticas da morte, menu do título) |
+| Ciclo completo jogado pelo robô | Movie Maker (`--write-movie`) sob Xvfb, 60 fps fixos, quadros extraídos com ffmpeg | Entrada → combate → relicário (pega relíquia) → combate → arena (2 ondas) → descida → profundidade 2. Vídeo gravado **antes** da correção do hitstop |
+
+## 4. Áudio
+
+42 efeitos e 3 músicas (camadas de exploração e combate) gerados por síntese. Verificado
+**numericamente**: picos abaixo de 0 dBFS, emenda do loop sem descontinuidade (frequências
+quantizadas a ciclos inteiros), agudos filtrados após análise espectral. **Nenhum som foi
+ouvido por um humano.**
+
+## 5. Exportação e execução fora do editor
+
+| Verificação | Resultado |
+|---|---|
+| `ferramentas/exportar.sh` (Windows Desktop + Linux) | ✅ `build/windows/CRYPTBOUND.exe` (~113 MB, PCK embutido) e `build/linux/cryptbound.x86_64` |
+| Cabeçalho PE (`pefile`) | ✅ PE32+ x86-64, 6 ícones embutidos, ProductName CRYPTBOUND, FileVersion 0.1.0.0, CompanyName Voddkin |
+| Linux exportado sob Xvfb (`-- --demo`) | ✅ abre, renderiza (OpenGL 4.5 Mesa) e joga; capturas conferidas |
+| Windows no **Wine 9.0** (Ubuntu 24.04) | ❌ cai na inicialização: falha de página dentro do `kernelbase` do Wine (`VirtualProtect` com ponteiro nulo no código de inicialização do MinGW) |
+| Windows no **Wine 11.18** WoW64 (Kron4ek) | ✅ sem renderização termina com sucesso; com renderização abre o OpenGL 4.5 (Mesa) e roda a demonstração; capturas conferidas. Avisos de WASAPI (sem placa de som) esperados |
+
+## 6. Desempenho
+
+`testes/desempenho/estresse.tscn`: descida real com o robô, 30 inimigos erguidos de uma
+vez (Ressequidos e Lamuriantes) e rajadas de partículas a cada 20 quadros; 900 quadros
+medidos após 120 de aquecimento, sem limite de FPS.
+
+| Cenário | Tempo médio de quadro | p95 | Pior | Física por passo |
+|---|---|---|---|---|
+| Sem renderização, linha de base (0 inimigos extras) | 6,9 ms | 7,7 ms | 11,6 ms | 2,0 ms |
+| Sem renderização, 30 inimigos | 6,9 ms | 11,0 ms | 14,3 ms | 6,0 ms |
+| llvmpipe (CPU), linha de base | 17,4 ms (58 FPS) | 22,0 ms | 46,0 ms | 1,7 ms |
+| llvmpipe (CPU), 30 inimigos | 25,7 ms (39 FPS) | 35,0 ms | 46,2 ms | 3,8 ms |
+
+Leitura: a lógica do jogo com 30 inimigos cabe com folga em 16,6 ms; o custo dominante aqui é
+a renderização **por software**, que numa GPU real é muito menor. São números pessimistas
+de uma CPU de servidor, **não** de um PC de jogador. Os quadros mais lentos (~46 ms) aparecem
+também na linha de base e coincidem com picos da renderização por software. As salas de
+combate têm de 5 a 9 inimigos somando as ondas (mais até 3 reforços nas profundidades altas).
+
+## 7. O que NÃO foi testado
+
+- **Windows real** (só Wine 11.18).
+- **Playtest humano**: sensação de controle, dificuldade e clareza nunca foram avaliadas por
+  uma pessoa jogando.
+- **Controle físico (gamepad)**: o mapeamento existe, mas nunca foi usado com um controle.
+- **Áudio audível** (sem placa de som; só análise numérica).
+- **GPU real** e monitores de alta taxa de atualização.
+- **Resoluções e escalas** além de 1280×720 (a escala inteira foi conferida só em teoria e
+  no código do Godot).
+- **Descidas longas** (profundidades altas) além da profundidade 2 no vídeo e da escalada
+  calculada em teste.

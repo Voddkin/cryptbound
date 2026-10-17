@@ -37,7 +37,7 @@ dados/        armas/, itens/, inimigos/ (.tres) e salas/catacumbas/ (.txt)
 arte/         PNG + JSON gerados       audio/  sfx/ (WAV) e musica/ (OGG) gerados
 fontes/       fontes bitmap BMFont geradas + OFL.txt
 ferramentas/  arte/ e audio/ (geradores Python), testar.sh, exportar.sh  (pasta com .gdignore)
-testes/       executor, CasoTeste, unit/, simulacao/
+testes/       executor, CasoTeste, unit/, simulacao/, captura/ (telas), desempenho/ (estresse)
 ```
 
 ## Autoloads (ordem importa)
@@ -48,7 +48,7 @@ testes/       executor, CasoTeste, unit/, simulacao/
 | `Config` | Opções em `config.cfg`; valida tipos e faixas; aplica volume/tela/vsync. |
 | `Eventos` | Barramento de sinais (HUD, áudio, estatísticas e itens não se conhecem). |
 | `Audio` | Cria barramentos (Música, Efeitos com reverb, limitador no Master); variações de SFX; música em 2 camadas sincronizadas (exploração + combate) com transição de volume. |
-| `Efeitos` | Dono único de `Engine.time_scale`: hitstop (contado em tempo não escalado, determinístico com `--fixed-fps`), câmera lenta, tremor por trauma, partículas, manchas, números, anéis. |
+| `Efeitos` | Dono único de `Engine.time_scale`, gravado só no próprio `_process` (o motor lê a escala no início do quadro, então o `delta` seguinte foi escalado exatamente pelo valor gravado): hitstop e câmera lenta pedidos valem a partir do quadro seguinte, contados em tempo não escalado e determinísticos com `--fixed-fps`; tremor por trauma, partículas, manchas, números, anéis. |
 | `Salvamento` | Progresso JSON versionado; escrita atômica (ver abaixo). |
 | `Jogo` | Estado da descida (velas, ossos, relíquias, profundidade, semente, estatísticas) e troca de cenas. |
 

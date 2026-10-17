@@ -13,7 +13,7 @@ raízes até serem purificadas e uma morte que ensina o que deu errado.
 
 **Primeiro marco jogável concluído** (veja `ESTADO_DO_PROJETO.md`): a Coveira (combo, golpe
 pesado, esquiva), dois inimigos, três relíquias com combinação, nove salas, profundidades
-infinitas com escalada, interface completa em pt-BR, salvamento robusto, 49 testes
+infinitas com escalada, interface completa em pt-BR, salvamento robusto, 61 testes
 automatizados e builds para Windows e Linux verificados fora do editor.
 Arte e áudio são **provisórios** (gerados por código).
 
