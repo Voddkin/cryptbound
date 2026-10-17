@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://jogo/mundo/descida.gd" id="1_descida"]
+
+[node name="Descida" type="Node2D"]
+script = ExtResource("1_descida")

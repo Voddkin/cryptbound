@@ -27,3 +27,6 @@ signal ossos_mudaram(total: int)
 # Interface
 signal mensagem(texto: String, duracao: float)
 signal dica_interacao(texto: String)
+## Relíquia sob a atenção da Coveira (ao chegar perto de um altar); null quando sai.
+signal item_em_foco(item: ItemDados)
+signal sala_nomeada(nome: String)

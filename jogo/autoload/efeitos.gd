@@ -109,6 +109,11 @@ func poeira(posicao: Vector2, quantidade: int = 3, direcao: Vector2 = Vector2.ZE
 		_particulas.poeira(posicao, quantidade, direcao)
 
 
+func estilhacos_terra(posicao: Vector2, quantidade: int = 7) -> void:
+	if _particulas:
+		_particulas.estilhacos(posicao, Vector2.UP, quantidade, [Color("46302a"), Color("6e4c3c"), Color("2a1b16")], false)
+
+
 func cinzas_cera(posicao: Vector2, quantidade: int) -> void:
 	if _particulas:
 		_particulas.estilhacos(posicao, Vector2.UP, quantidade, [Color("f0e6cf"), Color("d8cfb8"), Color("a66cd0")], true)

@@ -99,29 +99,38 @@ def topo(mascara):
     """Topo escuro da parede; bordas iluminadas onde o vizinho NÃO é parede."""
     r = ruido(5000 + mascara)
     img = Image.new("RGBA", (T, T))
+    # Topo de alvenaria (lido como pedra, não como buraco): pedra escura com blocos sutis.
     for y in range(T):
         for x in range(T):
-            _px(img, x, y, "2" if r.random() < 0.08 else "1")
+            v = r.random()
+            c = "2"
+            if v < 0.07:
+                c = "3"
+            elif v < 0.12:
+                c = "1"
+            if (y % 8 == 0) or (x == (0 if (y // 8) % 2 == 0 else 8)):
+                c = "1"
+            _px(img, x, y, c)
     def livre(bit):
         return not (mascara & bit)
-    # Bordas retas
+    # Bordas retas: aresta clara onde o topo encontra o chão
     if livre(N):
         for x in range(T):
-            _px(img, x, 0, "5"); _px(img, x, 1, "3")
+            _px(img, x, 0, "6"); _px(img, x, 1, "4")
     if livre(S):
         for x in range(T):
-            _px(img, x, T - 1, "4"); _px(img, x, T - 2, "2")
+            _px(img, x, T - 1, "5"); _px(img, x, T - 2, "3")
     if livre(O):
         for y in range(T):
-            _px(img, 0, y, "4"); _px(img, 1, y, "2")
+            _px(img, 0, y, "5"); _px(img, 1, y, "3")
     if livre(L):
         for y in range(T):
-            _px(img, T - 1, y, "4"); _px(img, T - 2, y, "2")
+            _px(img, T - 1, y, "5"); _px(img, T - 2, y, "3")
     # Cantos internos (vizinhos retos são parede, diagonal não)
     for bit_a, bit_b, bit_d, (cx, cy) in [(N, O, NO, (0, 0)), (N, L, NE, (T - 1, 0)),
                                          (S, O, SO, (0, T - 1)), (S, L, SE, (T - 1, T - 1))]:
         if not livre(bit_a) and not livre(bit_b) and livre(bit_d):
-            _px(img, cx, cy, "4")
+            _px(img, cx, cy, "5")
     # Cantos externos arredondados
     for bit_a, bit_b, (cx, cy) in [(N, O, (0, 0)), (N, L, (T - 1, 0)), (S, O, (0, T - 1)), (S, L, (T - 1, T - 1))]:
         if livre(bit_a) and livre(bit_b):

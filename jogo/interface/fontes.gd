@@ -28,6 +28,9 @@ static func _carregar(caminho: String) -> Font:
 	var fonte: Font = null
 	if ResourceLoader.exists(caminho):
 		fonte = load(caminho) as Font
+	if fonte is FontFile:
+		# Fontes bitmap: tamanhos múltiplos do nativo escalam em passos inteiros (pixels nítidos).
+		(fonte as FontFile).fixed_size_scale_mode = TextServer.FIXED_SIZE_SCALE_INTEGER_ONLY
 	if fonte == null:
 		fonte = ThemeDB.fallback_font
 	_cache[caminho] = fonte
