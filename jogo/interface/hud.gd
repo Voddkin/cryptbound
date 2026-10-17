@@ -110,6 +110,7 @@ func _ready() -> void:
 	Eventos.item_em_foco.connect(_mostrar_item)
 	Eventos.mensagem.connect(mostrar_mensagem)
 	Eventos.sala_nomeada.connect(_mostrar_nome_sala)
+	Eventos.combate_iniciou.connect(func(_s: Node) -> void: _esconder_dicas_controle())
 	_ossos.text = str(Jogo.ossos)
 	_atualizar_profundidade()
 	_atualizar_reliquias()
@@ -141,6 +142,7 @@ func _mostrar_item(item: ItemDados) -> void:
 	if item == null:
 		_painel_item.visible = false
 		return
+	_esconder_dicas_controle()
 	_item_nome.text = item.nome
 	_item_nome.add_theme_color_override("font_color", item.cor_raridade())
 	_item_desc.text = item.descricao
@@ -171,6 +173,18 @@ func _mostrar_nome_sala(nome: String) -> void:
 	_tween_sala.tween_property(_nome_sala, ^"modulate:a", 0.0, 1.0)
 
 
+var _tween_dicas: Tween
+
+
+func _esconder_dicas_controle() -> void:
+	if _dicas_controle.modulate.a <= 0.0:
+		return
+	if _tween_dicas:
+		_tween_dicas.kill()
+	_tween_dicas = create_tween()
+	_tween_dicas.tween_property(_dicas_controle, ^"modulate:a", 0.0, 0.25)
+
+
 func mostrar_dicas_controle() -> void:
 	var linhas := [
 		Textos.t("dica.mover", {"tecla": Controles.nome_entrada(&"mover")}),
@@ -180,7 +194,9 @@ func mostrar_dicas_controle() -> void:
 	]
 	_dicas_controle.text = "\n".join(linhas)
 	_dicas_controle.position = Vector2(8, 360 - 34 - 13 * linhas.size())
-	var t := create_tween()
-	t.tween_property(_dicas_controle, ^"modulate:a", 1.0, 0.8)
-	t.tween_interval(14.0)
-	t.tween_property(_dicas_controle, ^"modulate:a", 0.0, 1.5)
+	if _tween_dicas:
+		_tween_dicas.kill()
+	_tween_dicas = create_tween()
+	_tween_dicas.tween_property(_dicas_controle, ^"modulate:a", 1.0, 0.8)
+	_tween_dicas.tween_interval(14.0)
+	_tween_dicas.tween_property(_dicas_controle, ^"modulate:a", 0.0, 1.5)

@@ -8,6 +8,7 @@ var _menu: VBoxContainer
 var _reliquias: VBoxContainer
 var _config: PainelConfig
 var _primeiro: BotaoMenu
+var _painel_reliquias: PanelContainer
 
 
 func _ready() -> void:
@@ -39,7 +40,8 @@ func _ready() -> void:
 		get_tree().paused = false
 		Jogo.ir_para_titulo())
 	_botao("pausa.sair", func() -> void: get_tree().quit())
-	var painel := PanelContainer.new()
+	_painel_reliquias = PanelContainer.new()
+	var painel := _painel_reliquias
 	painel.position = Vector2(300, 60)
 	painel.custom_minimum_size = Vector2(310, 0)
 	raiz.add_child(painel)
@@ -51,6 +53,7 @@ func _ready() -> void:
 	_config.position = Vector2(160, 70)
 	_config.fechado.connect(func() -> void:
 		_menu.visible = true
+		_painel_reliquias.visible = true
 		_primeiro.grab_focus())
 	raiz.add_child(_config)
 
@@ -82,6 +85,7 @@ func abrir() -> void:
 	_preencher_reliquias()
 	visible = true
 	_menu.visible = true
+	_painel_reliquias.visible = true
 	get_tree().paused = true
 	_primeiro.grab_focus.call_deferred()
 
@@ -94,6 +98,7 @@ func fechar() -> void:
 
 func _abrir_config() -> void:
 	_menu.visible = false
+	_painel_reliquias.visible = false
 	_config.abrir()
 
 

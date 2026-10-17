@@ -19,7 +19,7 @@ func _ready() -> void:
 	_raiz.theme = Tema.obter()
 	add_child(_raiz)
 	var fundo := ColorRect.new()
-	fundo.color = Color(0.03, 0.02, 0.04, 0.86)
+	fundo.color = Color(0.03, 0.02, 0.04, 0.93)
 	fundo.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_raiz.add_child(fundo)
 	var coluna := VBoxContainer.new()
@@ -38,7 +38,7 @@ func _ready() -> void:
 	_dica.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_dica.custom_minimum_size = Vector2(560, 0)
 	coluna.add_child(_dica)
-	_estatisticas = Tema.rotulo("", Fontes.pequena(), Fontes.TAMANHO_PEQUENA, Tema.COR_TEXTO_FRACO)
+	_estatisticas = Tema.rotulo("", Fontes.pequena(), Fontes.TAMANHO_PEQUENA, Tema.COR_TEXTO)
 	_estatisticas.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	coluna.add_child(_estatisticas)
 	var botoes := VBoxContainer.new()

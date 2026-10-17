@@ -76,6 +76,12 @@ func _montar_interface() -> void:
 	subtitulo.size = Vector2(640, 20)
 	raiz.add_child(subtitulo)
 
+	# Faixa escura suave atrás do menu (legibilidade sobre o cenário iluminado)
+	var fundo_menu := ColorRect.new()
+	fundo_menu.color = Color(0.04, 0.035, 0.06, 0.55)
+	fundo_menu.position = Vector2(236, 162)
+	fundo_menu.size = Vector2(168, 96)
+	raiz.add_child(fundo_menu)
 	_menu = VBoxContainer.new()
 	_menu.position = Vector2(262, 170)
 	_menu.add_theme_constant_override("separation", 2)
